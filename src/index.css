@@ -1,0 +1,137 @@
+/* 🔹 Variables globales basadas en el theme.js */
+:root {
+  --background: #F8F9FA;
+  --dashboard-background: #2ECC71; /* 🟢 Verde más elegante */
+  --card: #FFFFFF;
+  --primary: #2ECC71;
+  --error: #E74C3C;
+  --text: #1E1E1E;
+  --sidebar: #1E1E1E; /* ⚫ Sidebar oscuro */
+  --sidebar-hover: #2A2A2A; /* 🏴 Hover en Sidebar */
+  --font-family: "Inter, sans-serif";
+}
+
+/* 🔹 Estilos Generales */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: var(--font-family);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-y: auto;
+}
+
+/* 🔹 Contenedor Principal */
+.dashboard-container {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+/* 🔹 Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: var(--sidebar);
+  color: #FFFFFF;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+.sidebar:hover {
+  background-color: var(--sidebar-hover);
+}
+
+/* 🔹 Ocultar Sidebar en dispositivos pequeños */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+}
+
+/* 🔹 Contenido Principal */
+.content {
+  flex-grow: 1;
+  padding: 24px;
+  margin-left: 250px;
+  background-color: var(--background);
+  color: var(--text);
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* 🔹 En móviles, la barra lateral se oculta */
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0;
+  }
+}
+
+/* 🔹 Tarjetas */
+.card {
+  background-color: var(--card);
+  color: var(--text);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* 🔹 Botones */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--primary);
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  color: white;
+}
+
+button:hover {
+  background-color: #06b224;
+}
+
+/* 🔹 Scrollbar Personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--card);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #06b224;
+}
+
+/* 🔹 Ajuste del Layout en Pantallas Grandes */
+.css-4az356, .css-6sgn74, .css-ou110v {
+  padding: 0 !important;
+  padding-left: 24px !important;
+}
