@@ -92,41 +92,55 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <Box
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          position: "fixed",
-          height: "100vh",
-          zIndex: 1200,
-          display: { xs: "none", md: "block" },
-        }}
-      >
-        {drawerContent}
-      </Box>
+      {/* Sidebar fijo solo en escritorio */}
+      {!mobileOpen && (
+        <Box
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            position: "fixed",
+            height: "100vh",
+            zIndex: 1200,
+            bgcolor: theme.colors.sidebar,
+            display: { xs: "none", md: "block" }, // 🔹 Solo en escritorio
+          }}
+        >
+          {drawerContent}
+        </Box>
+      )}
 
+      {/* Sidebar deslizable en móviles */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": { width: drawerWidth, bgcolor: theme.colors.sidebar },
+          display: { xs: "block", md: "none" }, // 🔹 Solo en móviles
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            bgcolor: theme.colors.sidebar,
+          },
         }}
       >
         {drawerContent}
       </Drawer>
 
+      {/* Contenido Principal */}
       <Box sx={{ flexGrow: 1, p: 3, ml: { xs: 0, md: `${drawerWidth}px` }, bgcolor: theme.colors.background }}>
+        {/* Botón de menú en móviles */}
         <IconButton
-          onClick={handleDrawerToggle}
+          onClick={() => setMobileOpen(!mobileOpen)}
           sx={{
             display: { xs: "block", md: "none" },
-            position: "absolute",
+            position: "fixed",
             top: 10,
             left: 10,
+            zIndex: 1300,
+            bgcolor: theme.colors.primary,
             color: "white",
+            p: 1,
+            borderRadius: "8px",
           }}
         >
           <MenuIcon />
@@ -139,4 +153,3 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 export default DashELayout;
-

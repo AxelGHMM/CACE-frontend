@@ -30,6 +30,9 @@ const LoginPage: React.FC = () => {
           setErrorMessage("El correo no está registrado.");
         } else if (err.response.status === 401) {
           setErrorMessage("La contraseña es incorrecta.");
+        }
+        else if (err.response.status === 429) {
+          setErrorMessage("Demasiados intentos, pruebe nuevamente en 15 minutos.");
         } else {
           setErrorMessage("Error de conexión.");
         }

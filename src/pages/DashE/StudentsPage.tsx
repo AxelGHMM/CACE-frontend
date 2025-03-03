@@ -129,10 +129,7 @@ const StudentsPage: React.FC = () => {
           <Select
             value={selectedProfessor ?? ""}
             onChange={(e) => setSelectedProfessor(Number(e.target.value))}
-            sx={{
-              bgcolor: theme.colors.card,
-              color: theme.colors.text,
-            }}
+            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
           >
             {professors.map((professor) => (
               <MenuItem key={professor.id} value={professor.id}>
@@ -147,14 +144,26 @@ const StudentsPage: React.FC = () => {
           <Select
             value={selectedGroupForAssignment ?? ""}
             onChange={(e) => setSelectedGroupForAssignment(Number(e.target.value))}
-            sx={{
-              bgcolor: theme.colors.card,
-              color: theme.colors.text,
-            }}
+            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
           >
             {groups.map((group) => (
               <MenuItem key={group.id} value={group.id}>
                 {group.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth sx={{ mt: 2 }}>
+          <InputLabel sx={{ color: theme.colors.text }}>Materia</InputLabel>
+          <Select
+            value={selectedSubject ?? ""}
+            onChange={(e) => setSelectedSubject(Number(e.target.value))}
+            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
+          >
+            {subjects.map((subject) => (
+              <MenuItem key={subject.id} value={subject.id}>
+                {subject.name}
               </MenuItem>
             ))}
           </Select>
