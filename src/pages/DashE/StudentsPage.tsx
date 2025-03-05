@@ -95,7 +95,6 @@ const StudentsPage: React.FC = () => {
       console.error("Error al eliminar asignación:", error);
     }
   };
-
   // Funciones para carga de archivos y asignación de profesores
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
