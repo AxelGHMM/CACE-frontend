@@ -79,6 +79,16 @@ const StudentsPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
+    try {
+      await api.delete(`/assignments/${id}`);
+      if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
+    } catch (error) {
+      console.error("Error al eliminar asignación:", error);
+    }
+  };
+
   const handleOpenModal = () => {
     setOpenModal(true);
   };
