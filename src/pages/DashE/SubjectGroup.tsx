@@ -13,6 +13,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  TextField,
+  Paper,
+  Snackbar,
+  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -24,6 +28,10 @@ import DashELayout from "../Layout/DashELayout";
 import theme from "../../theme";
 
 const SubjectGroup: React.FC = () => {
+  const [groupName, setGroupName] = useState("");
+  const [subjectName, setSubjectName] = useState("");
+  const [message, setMessage] = useState({ text: "", type: "success" });
+
   const [assignments, setAssignments] = useState<any[]>([]);
   const [professors, setProfessors] = useState<any[]>([]);
   const [selectedProfessor, setSelectedProfessor] = useState<number | null>(null);
@@ -31,18 +39,8 @@ const SubjectGroup: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
-    fetchAssignments();
     fetchProfessors();
   }, []);
-
-  const fetchAssignments = async () => {
-    try {
-      const response = await api.get("/assignments");
-      setAssignments(response.data);
-    } catch (error) {
-      console.error("Error al obtener asignaciones:", error);
-    }
-  };
 
   const fetchProfessors = async () => {
     try {
@@ -50,6 +48,38 @@ const SubjectGroup: React.FC = () => {
       setProfessors(response.data);
     } catch (error) {
       console.error("Error al obtener profesores:", error);
+    }
+  };
+
+  const handleAddGroup = async () => {
+    if (!groupName.trim()) {
+      setMessage({ text: "El nombre del grupo es obligatorio", type: "error" });
+      return;
+    }
+
+    try {
+      await api.post("/groups", { name: groupName });
+      setMessage({ text: "Grupo agregado con éxito", type: "success" });
+      setGroupName("");
+    } catch (error) {
+      console.error("Error al agregar grupo:", error);
+      setMessage({ text: "Error al agregar grupo", type: "error" });
+    }
+  };
+
+  const handleAddSubject = async () => {
+    if (!subjectName.trim()) {
+      setMessage({ text: "El nombre de la materia es obligatorio", type: "error" });
+      return;
+    }
+
+    try {
+      await api.post("/subjects", { name: subjectName });
+      setMessage({ text: "Materia agregada con éxito", type: "success" });
+      setSubjectName("");
+    } catch (error) {
+      console.error("Error al agregar materia:", error);
+      setMessage({ text: "Error al agregar materia", type: "error" });
     }
   };
 
@@ -78,7 +108,6 @@ const SubjectGroup: React.FC = () => {
 
     try {
       await api.delete(`/assignments/${id}`);
-      fetchAssignments();
       if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
     } catch (error) {
       console.error("Error al eliminar asignación:", error);
@@ -89,7 +118,7 @@ const SubjectGroup: React.FC = () => {
     <DashELayout>
       <Box sx={{ p: 4, bgcolor: theme.colors.background, minHeight: "100vh" }}>
         <Typography variant="h4" color={theme.colors.primary} fontWeight="bold">
-          Gestión de Asignaciones
+          Gestión de Materias y Grupos
         </Typography>
 
         {/* Botón para abrir el modal */}
@@ -101,7 +130,53 @@ const SubjectGroup: React.FC = () => {
           Manejo de Asignaciones
         </Button>
 
-        {/* Modal para manejar asignaciones */}
+        {/* 🔹 Formulario para agregar grupos */}
+        <Paper sx={{ p: 3, bgcolor: theme.colors.card, mt: 3, borderRadius: "10px" }}>
+          <Typography variant="h6" color={theme.colors.primary}>
+            Agregar Grupo
+          </Typography>
+          <TextField
+            fullWidth
+            label="Nombre del Grupo"
+            variant="outlined"
+            sx={{ mt: 2, input: { color: theme.colors.text }, bgcolor: theme.colors.background }}
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            InputLabelProps={{ style: { color: theme.colors.text } }}
+          />
+          <Button
+            variant="contained"
+            sx={{ mt: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
+            onClick={handleAddGroup}
+          >
+            Guardar Grupo
+          </Button>
+        </Paper>
+
+        {/* 🔹 Formulario para agregar materias */}
+        <Paper sx={{ p: 3, bgcolor: theme.colors.card, mt: 3, borderRadius: "10px" }}>
+          <Typography variant="h6" color={theme.colors.primary}>
+            Agregar Materia
+          </Typography>
+          <TextField
+            fullWidth
+            label="Nombre de la Materia"
+            variant="outlined"
+            sx={{ mt: 2, input: { color: theme.colors.text }, bgcolor: theme.colors.background }}
+            value={subjectName}
+            onChange={(e) => setSubjectName(e.target.value)}
+            InputLabelProps={{ style: { color: theme.colors.text } }}
+          />
+          <Button
+            variant="contained"
+            sx={{ mt: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
+            onClick={handleAddSubject}
+          >
+            Guardar Materia
+          </Button>
+        </Paper>
+
+        {/* Modal para manejo de asignaciones */}
         <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
           <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
             Manejo de Asignaciones
