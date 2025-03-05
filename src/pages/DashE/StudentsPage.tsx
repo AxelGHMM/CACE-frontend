@@ -30,7 +30,6 @@ const StudentsPage: React.FC = () => {
   const isAdmin = useAdminAuth();
   if (!isAdmin) return null;
 
-  // Estados generales
   const [professors, setProfessors] = useState<any[]>([]);
   const [selectedProfessor, setSelectedProfessor] = useState<number | null>(null);
   const [groups, setGroups] = useState<any[]>([]);
@@ -40,39 +39,34 @@ const StudentsPage: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<number | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any[]>([]);
-
-  // Estado para el manejo de asignaciones
-  const [openModal, setOpenModal] = useState(false);
   const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [professorsResponse, groupsResponse, subjectsResponse] = await Promise.all([
-          api.get("/users/role/professor"),
-          api.get("/groups"),
-          api.get("/subjects"),
-        ]);
-        setProfessors(professorsResponse.data);
-        setGroups(groupsResponse.data);
-        setSubjects(subjectsResponse.data);
-      } catch (error) {
-        console.error("Error al obtener datos:", error);
-      }
-    };
-
-    fetchData();
+    fetchProfessors();
+    fetchGroupsAndSubjects();
   }, []);
 
-  // Funciones de manejo de asignaciones
-  const handleOpenModal = () => {
-    setOpenModal(true);
+  const fetchProfessors = async () => {
+    try {
+      const response = await api.get("/users/role/professor");
+      setProfessors(response.data);
+    } catch (error) {
+      console.error("Error al obtener profesores:", error);
+    }
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedProfessor(null);
-    setProfessorAssignments([]);
+  const fetchGroupsAndSubjects = async () => {
+    try {
+      const [groupsResponse, subjectsResponse] = await Promise.all([
+        api.get("/groups"),
+        api.get("/subjects"),
+      ]);
+      setGroups(groupsResponse.data);
+      setSubjects(subjectsResponse.data);
+    } catch (error) {
+      console.error("Error al obtener datos:", error);
+    }
   };
 
   const fetchProfessorAssignments = async (professorId: number) => {
@@ -85,15 +79,14 @@ const StudentsPage: React.FC = () => {
     }
   };
 
-  const handleDeleteAssignment = async (id: number) => {
-    if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
 
-    try {
-      await api.delete(`/assignments/${id}`);
-      if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
-    } catch (error) {
-      console.error("Error al eliminar asignación:", error);
-    }
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedProfessor(null);
+    setProfessorAssignments([]);
   };
 
   return (
@@ -106,57 +99,13 @@ const StudentsPage: React.FC = () => {
         {/* Botón para abrir el modal de manejo de asignaciones */}
         <Button
           variant="contained"
-          sx={{ mt: 3, bgcolor: theme.colors.secondary }}
+          sx={{ mt: 3, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
           onClick={handleOpenModal}
         >
           Manejo de Asignaciones
         </Button>
 
-        {/* Sección de asignación de profesores */}
-        <Typography variant="h6" sx={{ mt: 4 }} color={theme.colors.primary}>
-          Asignar Profesor a Grupo y Materia
-        </Typography>
-
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel sx={{ color: theme.colors.text }}>Profesor</InputLabel>
-          <Select
-            value={selectedProfessor ?? ""}
-            onChange={(e) => setSelectedProfessor(Number(e.target.value))}
-            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-          >
-            {professors.map((professor) => (
-              <MenuItem key={professor.id} value={professor.id}>
-                {professor.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* Subir Lista de Alumnos */}
-        <Typography variant="h6" sx={{ mt: 4 }} color={theme.colors.primary}>
-          Subir Lista de Alumnos
-        </Typography>
-
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel sx={{ color: theme.colors.text }}>Grupo para Subida</InputLabel>
-          <Select
-            value={selectedGroupForUpload ?? ""}
-            onChange={(e) => setSelectedGroupForUpload(Number(e.target.value))}
-            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-          >
-            {groups.map((group) => (
-              <MenuItem key={group.id} value={group.id}>
-                {group.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <Box sx={{ mt: 2 }}>
-          <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-        </Box>
-
-        {/* Modal de manejo de asignaciones */}
+        {/* Modal para manejo de asignaciones */}
         <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
           <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
             Manejo de Asignaciones
@@ -177,7 +126,7 @@ const StudentsPage: React.FC = () => {
               </Select>
             </FormControl>
 
-            {/* Tabla con asignaciones */}
+            {/* Tabla con las asignaciones del profesor */}
             {selectedProfessor && (
               <Table sx={{ mt: 3, bgcolor: theme.colors.card }}>
                 <TableHead>
@@ -193,7 +142,7 @@ const StudentsPage: React.FC = () => {
                       <TableCell sx={{ color: theme.colors.text }}>{assignment.group_name}</TableCell>
                       <TableCell sx={{ color: theme.colors.text }}>{assignment.subject_name}</TableCell>
                       <TableCell>
-                        <IconButton onClick={() => handleDeleteAssignment(assignment.id)} sx={{ color: theme.colors.error }}>
+                        <IconButton onClick={() => handleDelete(assignment.id)} sx={{ color: theme.colors.error }}>
                           <Delete />
                         </IconButton>
                       </TableCell>
@@ -203,6 +152,11 @@ const StudentsPage: React.FC = () => {
               </Table>
             )}
           </DialogContent>
+          <DialogActions sx={{ bgcolor: theme.colors.card }}>
+            <Button onClick={handleCloseModal} sx={{ color: theme.colors.text }}>
+              Cerrar
+            </Button>
+          </DialogActions>
         </Dialog>
       </Box>
     </DashELayout>
