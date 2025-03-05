@@ -13,7 +13,13 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from "@mui/material";
+import { Delete } from "@mui/icons-material";
 import api from "../../utils/api";
 import * as XLSX from "xlsx";
 import DashELayout from "../Layout/DashELayout";
@@ -22,9 +28,9 @@ import theme from "../../theme";
 
 const StudentsPage: React.FC = () => {
   const isAdmin = useAdminAuth();
-
   if (!isAdmin) return null;
 
+  // Estados generales
   const [professors, setProfessors] = useState<any[]>([]);
   const [selectedProfessor, setSelectedProfessor] = useState<number | null>(null);
   const [groups, setGroups] = useState<any[]>([]);
@@ -34,6 +40,10 @@ const StudentsPage: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<number | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any[]>([]);
+
+  // Estados del modal de manejo de asignaciones
+  const [openModal, setOpenModal] = useState(false);
+  const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,20 +63,18 @@ const StudentsPage: React.FC = () => {
 
     fetchData();
   }, []);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedProfessor, setSelectedProfessor] = useState<number | null>(null);
-  const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
-  
+
+  // Funciones del modal de manejo de asignaciones
   const handleOpenModal = () => {
     setOpenModal(true);
   };
-  
+
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedProfessor(null);
     setProfessorAssignments([]);
   };
-  
+
   const fetchProfessorAssignments = async (professorId: number) => {
     setSelectedProfessor(professorId);
     try {
@@ -76,9 +84,10 @@ const StudentsPage: React.FC = () => {
       console.error("Error al obtener asignaciones del profesor:", error);
     }
   };
+
   const handleDelete = async (id: number) => {
     if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
-  
+
     try {
       await api.delete(`/assignments/${id}`);
       if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
@@ -86,8 +95,8 @@ const StudentsPage: React.FC = () => {
       console.error("Error al eliminar asignación:", error);
     }
   };
-  
-  
+
+  // Funciones para carga de archivos y asignación de profesores
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
@@ -152,176 +161,69 @@ const StudentsPage: React.FC = () => {
         <Typography variant="h4" gutterBottom fontWeight="bold" color={theme.colors.primary}>
           Gestión de Profesores y Estudiantes
         </Typography>
+
+        {/* Botón para abrir el modal de manejo de asignaciones */}
         <Button
-  variant="contained"
-  sx={{ mt: 3, bgcolor: theme.colors.secondary }}
-  onClick={handleOpenModal}
->
-  Manejo de Asignaciones
-</Button>
-<Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
-  <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
-    Manejo de Asignaciones
-  </DialogTitle>
-  <DialogContent sx={{ bgcolor: theme.colors.background }}>
-    <FormControl fullWidth sx={{ mt: 2 }}>
-      <InputLabel sx={{ color: theme.colors.text }}>Seleccionar Profesor</InputLabel>
-      <Select
-        value={selectedProfessor ?? ""}
-        onChange={(e) => fetchProfessorAssignments(Number(e.target.value))}
-        sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-      >
-        {professors.map((professor) => (
-          <MenuItem key={professor.id} value={professor.id}>
-            {professor.name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-
-    {/* Tabla con asignaciones */}
-    {selectedProfessor && (
-      <Table sx={{ mt: 3, bgcolor: theme.colors.card }}>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ color: theme.colors.text }}>Grupo</TableCell>
-            <TableCell sx={{ color: theme.colors.text }}>Materia</TableCell>
-            <TableCell sx={{ color: theme.colors.text }}>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {professorAssignments.map((assignment) => (
-            <TableRow key={assignment.id}>
-              <TableCell sx={{ color: theme.colors.text }}>{assignment.group_name}</TableCell>
-              <TableCell sx={{ color: theme.colors.text }}>{assignment.subject_name}</TableCell>
-              <TableCell>
-                <IconButton onClick={() => handleDelete(assignment.id)} sx={{ color: theme.colors.error }}>
-                  <Delete />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    )}
-  </DialogContent>
-  <DialogActions sx={{ bgcolor: theme.colors.card }}>
-    <Button onClick={handleCloseModal} sx={{ color: theme.colors.text }}>
-      Cerrar
-    </Button>
-  </DialogActions>
-</Dialog>
-
-        {/* Asignar Profesor a Grupo y Materia */}
-        <Typography variant="h6" sx={{ mt: 3 }} color={theme.colors.primary}>
-          Asignar Profesor a Grupo y Materia
-        </Typography>
-
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel sx={{ color: theme.colors.text }}>Profesor</InputLabel>
-          <Select
-            value={selectedProfessor ?? ""}
-            onChange={(e) => setSelectedProfessor(Number(e.target.value))}
-            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-          >
-            {professors.map((professor) => (
-              <MenuItem key={professor.id} value={professor.id}>
-                {professor.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel sx={{ color: theme.colors.text }}>Grupo</InputLabel>
-          <Select
-            value={selectedGroupForAssignment ?? ""}
-            onChange={(e) => setSelectedGroupForAssignment(Number(e.target.value))}
-            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-          >
-            {groups.map((group) => (
-              <MenuItem key={group.id} value={group.id}>
-                {group.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel sx={{ color: theme.colors.text }}>Materia</InputLabel>
-          <Select
-            value={selectedSubject ?? ""}
-            onChange={(e) => setSelectedSubject(Number(e.target.value))}
-            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-          >
-            {subjects.map((subject) => (
-              <MenuItem key={subject.id} value={subject.id}>
-                {subject.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <Button variant="contained" sx={{ mt: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }} onClick={handleAssign}>
-          Asignar Materia y Grupo
+          variant="contained"
+          sx={{ mt: 3, bgcolor: theme.colors.secondary }}
+          onClick={handleOpenModal}
+        >
+          Manejo de Asignaciones
         </Button>
 
-        {/* Subir Lista de Alumnos */}
-        <Typography variant="h6" sx={{ mt: 4 }} color={theme.colors.primary}>
-          Subir Lista de Alumnos
-        </Typography>
-
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel sx={{ color: theme.colors.text }}>Grupo para Subida</InputLabel>
-          <Select
-            value={selectedGroupForUpload ?? ""}
-            onChange={(e) => setSelectedGroupForUpload(Number(e.target.value))}
-            sx={{
-              bgcolor: theme.colors.card,
-              color: theme.colors.text,
-            }}
-          >
-            {groups.map((group) => (
-              <MenuItem key={group.id} value={group.id}>
-                {group.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <Box sx={{ mt: 2 }}>
-          <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} style={{ color: theme.colors.text }} />
-        </Box>
-
-        {previewData.length > 0 && (
-          <Box component={Paper} sx={{ mt: 4, p: 2, maxHeight: 300, overflowY: "auto", bgcolor: theme.colors.card }}>
-            <Typography variant="h6" color={theme.colors.primary}>
-              Vista Previa de la Lista
-            </Typography>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ color: theme.colors.text }}>Matrícula</TableCell>
-                  <TableCell sx={{ color: theme.colors.text }}>Nombre</TableCell>
-                  <TableCell sx={{ color: theme.colors.text }}>Email</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {previewData.map((student, index) => (
-                  <TableRow key={index}>
-                    <TableCell sx={{ color: theme.colors.text }}>{student.matricula}</TableCell>
-                    <TableCell sx={{ color: theme.colors.text }}>{student.name}</TableCell>
-                    <TableCell sx={{ color: theme.colors.text }}>{student.email || "N/A"}</TableCell>
-                  </TableRow>
+        {/* Modal de manejo de asignaciones */}
+        <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
+          <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
+            Manejo de Asignaciones
+          </DialogTitle>
+          <DialogContent sx={{ bgcolor: theme.colors.background }}>
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel sx={{ color: theme.colors.text }}>Seleccionar Profesor</InputLabel>
+              <Select
+                value={selectedProfessor ?? ""}
+                onChange={(e) => fetchProfessorAssignments(Number(e.target.value))}
+                sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
+              >
+                {professors.map((professor) => (
+                  <MenuItem key={professor.id} value={professor.id}>
+                    {professor.name}
+                  </MenuItem>
                 ))}
-              </TableBody>
-            </Table>
-          </Box>
-        )}
+              </Select>
+            </FormControl>
 
-        <Button variant="contained" sx={{ mt: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }} onClick={handleUpload} disabled={!file}>
-          Subir Archivo
-        </Button>
+            {/* Tabla con asignaciones */}
+            {selectedProfessor && (
+              <Table sx={{ mt: 3, bgcolor: theme.colors.card }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ color: theme.colors.text }}>Grupo</TableCell>
+                    <TableCell sx={{ color: theme.colors.text }}>Materia</TableCell>
+                    <TableCell sx={{ color: theme.colors.text }}>Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {professorAssignments.map((assignment) => (
+                    <TableRow key={assignment.id}>
+                      <TableCell sx={{ color: theme.colors.text }}>{assignment.group_name}</TableCell>
+                      <TableCell sx={{ color: theme.colors.text }}>{assignment.subject_name}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={() => handleDelete(assignment.id)} sx={{ color: theme.colors.error }}>
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ bgcolor: theme.colors.card }}>
+            <Button onClick={handleCloseModal} sx={{ color: theme.colors.text }}>
+              Cerrar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </DashELayout>
   );
