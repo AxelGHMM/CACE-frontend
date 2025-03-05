@@ -41,7 +41,7 @@ const StudentsPage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any[]>([]);
 
-  // Estados del modal de manejo de asignaciones
+  // Estado para el manejo de asignaciones
   const [openModal, setOpenModal] = useState(false);
   const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
 
@@ -64,7 +64,7 @@ const StudentsPage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Funciones del modal de manejo de asignaciones
+  // Funciones de manejo de asignaciones
   const handleOpenModal = () => {
     setOpenModal(true);
   };
@@ -85,7 +85,7 @@ const StudentsPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDeleteAssignment = async (id: number) => {
     if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
 
     try {
@@ -93,64 +93,6 @@ const StudentsPage: React.FC = () => {
       if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
     } catch (error) {
       console.error("Error al eliminar asignación:", error);
-    }
-  };
-  // Funciones para carga de archivos y asignación de profesores
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const data = new Uint8Array(event.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-        setPreviewData(jsonData);
-      };
-      reader.readAsArrayBuffer(e.target.files[0]);
-    }
-  };
-
-  const handleAssign = async () => {
-    if (!selectedProfessor || !selectedGroupForAssignment || !selectedSubject) {
-      alert("Por favor, selecciona profesor, grupo y materia.");
-      return;
-    }
-
-    try {
-      await api.post("/assignments", {
-        user_id: selectedProfessor,
-        group_id: selectedGroupForAssignment,
-        subject_id: selectedSubject,
-      });
-      alert("Asignación realizada con éxito.");
-    } catch (error) {
-      console.error("Error al asignar:", error);
-      alert("Error al realizar la asignación.");
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) {
-      alert("Por favor, selecciona un archivo.");
-      return;
-    }
-
-    if (!selectedGroupForUpload) {
-      alert("Por favor, selecciona un grupo antes de subir el archivo.");
-      return;
-    }
-
-    try {
-      await api.post("/upload", { data: previewData, groupId: selectedGroupForUpload });
-      alert("Archivo subido con éxito.");
-      setFile(null);
-      setPreviewData([]);
-    } catch (error) {
-      console.error("Error al subir el archivo:", error);
-      alert("Error al subir el archivo.");
     }
   };
 
@@ -207,7 +149,7 @@ const StudentsPage: React.FC = () => {
                       <TableCell sx={{ color: theme.colors.text }}>{assignment.group_name}</TableCell>
                       <TableCell sx={{ color: theme.colors.text }}>{assignment.subject_name}</TableCell>
                       <TableCell>
-                        <IconButton onClick={() => handleDelete(assignment.id)} sx={{ color: theme.colors.error }}>
+                        <IconButton onClick={() => handleDeleteAssignment(assignment.id)} sx={{ color: theme.colors.error }}>
                           <Delete />
                         </IconButton>
                       </TableCell>
