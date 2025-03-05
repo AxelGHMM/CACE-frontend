@@ -112,6 +112,50 @@ const StudentsPage: React.FC = () => {
           Manejo de Asignaciones
         </Button>
 
+        {/* Sección de asignación de profesores */}
+        <Typography variant="h6" sx={{ mt: 4 }} color={theme.colors.primary}>
+          Asignar Profesor a Grupo y Materia
+        </Typography>
+
+        <FormControl fullWidth sx={{ mt: 2 }}>
+          <InputLabel sx={{ color: theme.colors.text }}>Profesor</InputLabel>
+          <Select
+            value={selectedProfessor ?? ""}
+            onChange={(e) => setSelectedProfessor(Number(e.target.value))}
+            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
+          >
+            {professors.map((professor) => (
+              <MenuItem key={professor.id} value={professor.id}>
+                {professor.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Subir Lista de Alumnos */}
+        <Typography variant="h6" sx={{ mt: 4 }} color={theme.colors.primary}>
+          Subir Lista de Alumnos
+        </Typography>
+
+        <FormControl fullWidth sx={{ mt: 2 }}>
+          <InputLabel sx={{ color: theme.colors.text }}>Grupo para Subida</InputLabel>
+          <Select
+            value={selectedGroupForUpload ?? ""}
+            onChange={(e) => setSelectedGroupForUpload(Number(e.target.value))}
+            sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
+          >
+            {groups.map((group) => (
+              <MenuItem key={group.id} value={group.id}>
+                {group.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Box sx={{ mt: 2 }}>
+          <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
+        </Box>
+
         {/* Modal de manejo de asignaciones */}
         <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
           <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
@@ -159,11 +203,6 @@ const StudentsPage: React.FC = () => {
               </Table>
             )}
           </DialogContent>
-          <DialogActions sx={{ bgcolor: theme.colors.card }}>
-            <Button onClick={handleCloseModal} sx={{ color: theme.colors.text }}>
-              Cerrar
-            </Button>
-          </DialogActions>
         </Dialog>
       </Box>
     </DashELayout>
