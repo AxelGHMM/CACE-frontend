@@ -1,28 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
-  Typography,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Button,
-  IconButton,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  Typography,
   TextField,
   Paper,
   Snackbar,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
 import api from "../../utils/api";
 import DashELayout from "../Layout/DashELayout";
 import theme from "../../theme";
@@ -32,25 +17,7 @@ const SubjectGroup: React.FC = () => {
   const [subjectName, setSubjectName] = useState("");
   const [message, setMessage] = useState({ text: "", type: "success" });
 
-  const [assignments, setAssignments] = useState<any[]>([]);
-  const [professors, setProfessors] = useState<any[]>([]);
-  const [selectedProfessor, setSelectedProfessor] = useState<number | null>(null);
-  const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
-  const [openModal, setOpenModal] = useState(false);
-
-  useEffect(() => {
-    fetchProfessors();
-  }, []);
-
-  const fetchProfessors = async () => {
-    try {
-      const response = await api.get("/users/role/professor");
-      setProfessors(response.data);
-    } catch (error) {
-      console.error("Error al obtener profesores:", error);
-    }
-  };
-
+  // 🔹 Función para agregar grupo
   const handleAddGroup = async () => {
     if (!groupName.trim()) {
       setMessage({ text: "El nombre del grupo es obligatorio", type: "error" });
@@ -58,7 +25,8 @@ const SubjectGroup: React.FC = () => {
     }
 
     try {
-      await api.post("/groups", { name: groupName });
+      const response = await api.post("/groups", { name: groupName });
+      console.log("Grupo agregado:", response.data);
       setMessage({ text: "Grupo agregado con éxito", type: "success" });
       setGroupName("");
     } catch (error) {
@@ -67,6 +35,7 @@ const SubjectGroup: React.FC = () => {
     }
   };
 
+  // 🔹 Función para agregar materia
   const handleAddSubject = async () => {
     if (!subjectName.trim()) {
       setMessage({ text: "El nombre de la materia es obligatorio", type: "error" });
@@ -74,7 +43,8 @@ const SubjectGroup: React.FC = () => {
     }
 
     try {
-      await api.post("/subjects", { name: subjectName });
+      const response = await api.post("/subjects", { name: subjectName });
+      console.log("Materia agregada:", response.data);
       setMessage({ text: "Materia agregada con éxito", type: "success" });
       setSubjectName("");
     } catch (error) {
@@ -83,55 +53,15 @@ const SubjectGroup: React.FC = () => {
     }
   };
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedProfessor(null);
-    setProfessorAssignments([]);
-  };
-
-  const fetchProfessorAssignments = async (professorId: number) => {
-    setSelectedProfessor(professorId);
-    try {
-      const response = await api.get(`/assignments/user/${professorId}`);
-      setProfessorAssignments(response.data);
-    } catch (error) {
-      console.error("Error al obtener asignaciones del profesor:", error);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
-
-    try {
-      await api.delete(`/assignments/${id}`);
-      if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
-    } catch (error) {
-      console.error("Error al eliminar asignación:", error);
-    }
-  };
-
   return (
     <DashELayout>
-      <Box sx={{ p: 4, bgcolor: theme.colors.background, minHeight: "100vh" }}>
-        <Typography variant="h4" color={theme.colors.primary} fontWeight="bold">
+      <Box sx={{ p: 4, bgcolor: theme.colors.background, color: theme.colors.text, minHeight: "100vh" }}>
+        <Typography variant="h4" gutterBottom fontWeight="bold" color={theme.colors.primary}>
           Gestión de Materias y Grupos
         </Typography>
 
-        {/* Botón para abrir el modal */}
-        <Button
-          variant="contained"
-          sx={{ mt: 3, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
-          onClick={handleOpenModal}
-        >
-          Manejo de Asignaciones
-        </Button>
-
         {/* 🔹 Formulario para agregar grupos */}
-        <Paper sx={{ p: 3, bgcolor: theme.colors.card, mt: 3, borderRadius: "10px" }}>
+        <Paper sx={{ p: 3, bgcolor: theme.colors.card, mb: 3, borderRadius: "10px" }}>
           <Typography variant="h6" color={theme.colors.primary}>
             Agregar Grupo
           </Typography>
@@ -154,7 +84,7 @@ const SubjectGroup: React.FC = () => {
         </Paper>
 
         {/* 🔹 Formulario para agregar materias */}
-        <Paper sx={{ p: 3, bgcolor: theme.colors.card, mt: 3, borderRadius: "10px" }}>
+        <Paper sx={{ p: 3, bgcolor: theme.colors.card, borderRadius: "10px" }}>
           <Typography variant="h6" color={theme.colors.primary}>
             Agregar Materia
           </Typography>
@@ -176,59 +106,12 @@ const SubjectGroup: React.FC = () => {
           </Button>
         </Paper>
 
-        {/* Modal para manejo de asignaciones */}
-        <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
-          <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
-            Manejo de Asignaciones
-          </DialogTitle>
-          <DialogContent sx={{ bgcolor: theme.colors.background }}>
-            <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel sx={{ color: theme.colors.text }}>Seleccionar Profesor</InputLabel>
-              <Select
-                value={selectedProfessor ?? ""}
-                onChange={(e) => fetchProfessorAssignments(Number(e.target.value))}
-                sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-              >
-                {professors.map((professor) => (
-                  <MenuItem key={professor.id} value={professor.id}>
-                    {professor.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {/* Tabla con las asignaciones del profesor */}
-            {selectedProfessor && (
-              <Table sx={{ mt: 3, bgcolor: theme.colors.card }}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: theme.colors.text }}>Grupo</TableCell>
-                    <TableCell sx={{ color: theme.colors.text }}>Materia</TableCell>
-                    <TableCell sx={{ color: theme.colors.text }}>Acciones</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {professorAssignments.map((assignment) => (
-                    <TableRow key={assignment.id}>
-                      <TableCell sx={{ color: theme.colors.text }}>{assignment.group_name}</TableCell>
-                      <TableCell sx={{ color: theme.colors.text }}>{assignment.subject_name}</TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => handleDelete(assignment.id)} sx={{ color: theme.colors.error }}>
-                          <Delete />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </DialogContent>
-          <DialogActions sx={{ bgcolor: theme.colors.card }}>
-            <Button onClick={handleCloseModal} sx={{ color: theme.colors.text }}>
-              Cerrar
-            </Button>
-          </DialogActions>
-        </Dialog>
+        {/* 🔹 Mensajes de éxito/error */}
+        <Snackbar open={Boolean(message.text)} autoHideDuration={3000} onClose={() => setMessage({ text: "", type: "success" })}>
+          <Alert severity={message.type === "error" ? "error" : "success"} sx={{ width: "100%" }}>
+            {message.text}
+          </Alert>
+        </Snackbar>
       </Box>
     </DashELayout>
   );
