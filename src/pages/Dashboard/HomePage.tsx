@@ -51,8 +51,8 @@ const HomePage: React.FC = () => {
       {
         label: "Asistencias",
         data: attendanceData,
-        backgroundColor: "#08DC2B",
-        borderColor: "#131515",
+        backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.text,
         borderWidth: 1,
       },
     ],
@@ -63,7 +63,7 @@ const HomePage: React.FC = () => {
     datasets: [
       {
         data: gradesData,
-        backgroundColor: ["#08DC2B", "#2B2C28", "#131515"],
+        backgroundColor: [theme.colors.primary, theme.colors.secondary, theme.colors.sidebar],
       },
     ],
   };
@@ -81,7 +81,7 @@ const HomePage: React.FC = () => {
   return (
     <DashboardLayout>
       <Box sx={{ p: 4, bgcolor: theme.colors.background, color: theme.colors.text, minHeight: "100vh", fontFamily: theme.fontFamily }}>
-        <Typography variant="h4" gutterBottom fontWeight="bold" color="#08DC2B">
+        <Typography variant="h4" gutterBottom fontWeight="bold" color={theme.colors.primary}>
           ¡Bienvenido a CACE!
         </Typography>
         <Typography variant="body1" gutterBottom>
@@ -93,7 +93,7 @@ const HomePage: React.FC = () => {
           {[{ label: "Total de Asistencias", value: totalAttendance }, { label: "Estudiantes Registrados", value: totalStudents }, { label: "Promedio de Asistencias", value: attendanceAverage }].map(
             (item, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, textAlign: "center", p: 2, borderRadius: "10px", border: `2px solid #08DC2B` }}>
+                <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, textAlign: "center", p: 2, borderRadius: theme.borderRadius, border: `2px solid ${theme.colors.primary}` }}>
                   <Typography variant="h6">{item.label}</Typography>
                   <Typography variant="h4">{item.value}</Typography>
                 </Card>
@@ -107,7 +107,7 @@ const HomePage: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, height: "100%" }}>
               <CardContent>
-                <Typography variant="h6" color="#08DC2B">
+                <Typography variant="h6" color={theme.colors.primary}>
                   Asistencias de los últimos meses
                 </Typography>
                 <Box sx={{ width: "100%", height: 300 }}>
@@ -119,7 +119,7 @@ const HomePage: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, height: "100%" }}>
               <CardContent>
-                <Typography variant="h6" color="#08DC2B">
+                <Typography variant="h6" color={theme.colors.primary}>
                   Asistencias por Grados
                 </Typography>
                 <Box sx={{ width: "100%", height: 300 }}>
