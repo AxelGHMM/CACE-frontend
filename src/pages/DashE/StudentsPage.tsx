@@ -28,6 +28,7 @@ import theme from "../../theme";
 
 const StudentsPage: React.FC = () => {
   const isAdmin = useAdminAuth();
+
   if (!isAdmin) return null;
 
   const [professors, setProfessors] = useState<any[]>([]);
@@ -43,25 +44,17 @@ const StudentsPage: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
-    fetchProfessors();
-    fetchGroupsAndSubjects();
+    fetchData();
   }, []);
 
-  const fetchProfessors = async () => {
+  const fetchData = async () => {
     try {
-      const response = await api.get("/users/role/professor");
-      setProfessors(response.data);
-    } catch (error) {
-      console.error("Error al obtener profesores:", error);
-    }
-  };
-
-  const fetchGroupsAndSubjects = async () => {
-    try {
-      const [groupsResponse, subjectsResponse] = await Promise.all([
+      const [professorsResponse, groupsResponse, subjectsResponse] = await Promise.all([
+        api.get("/users/role/professor"),
         api.get("/groups"),
         api.get("/subjects"),
       ]);
+      setProfessors(professorsResponse.data);
       setGroups(groupsResponse.data);
       setSubjects(subjectsResponse.data);
     } catch (error) {
@@ -79,24 +72,73 @@ const StudentsPage: React.FC = () => {
     }
   };
 
+  const handleAssign = async () => {
+    if (!selectedProfessor || !selectedGroupForAssignment || !selectedSubject) {
+      alert("Por favor, selecciona profesor, grupo y materia.");
+      return;
+    }
+
+    try {
+      await api.post("/assignments", {
+        user_id: selectedProfessor,
+        group_id: selectedGroupForAssignment,
+        subject_id: selectedSubject,
+      });
+      alert("Asignación realizada con éxito.");
+    } catch (error) {
+      console.error("Error al asignar:", error);
+      alert("Error al realizar la asignación.");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const data = new Uint8Array(event.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        setPreviewData(jsonData);
+      };
+      reader.readAsArrayBuffer(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      alert("Por favor, selecciona un archivo.");
+      return;
+    }
+
+    if (!selectedGroupForUpload) {
+      alert("Por favor, selecciona un grupo antes de subir el archivo.");
+      return;
+    }
+
+    try {
+      await api.post("/upload", { data: previewData, groupId: selectedGroupForUpload });
+      alert("Archivo subido con éxito.");
+      setFile(null);
+      setPreviewData([]);
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
+      alert("Error al subir el archivo.");
+    }
+  };
+
   const handleDelete = async (id: number) => {
     if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
+
     try {
       await api.delete(`/assignments/${id}`);
       if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
     } catch (error) {
       console.error("Error al eliminar asignación:", error);
     }
-  };
-
-  const handleOpenModal = () => {
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedProfessor(null);
-    setProfessorAssignments([]);
   };
 
   return (
@@ -110,13 +152,13 @@ const StudentsPage: React.FC = () => {
         <Button
           variant="contained"
           sx={{ mt: 3, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
-          onClick={handleOpenModal}
+          onClick={() => setOpenModal(true)}
         >
           Manejo de Asignaciones
         </Button>
 
         {/* Modal para manejo de asignaciones */}
-        <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
+        <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="md">
           <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
             Manejo de Asignaciones
           </DialogTitle>
@@ -136,7 +178,6 @@ const StudentsPage: React.FC = () => {
               </Select>
             </FormControl>
 
-            {/* Tabla con las asignaciones del profesor */}
             {selectedProfessor && (
               <Table sx={{ mt: 3, bgcolor: theme.colors.card }}>
                 <TableHead>
@@ -163,7 +204,7 @@ const StudentsPage: React.FC = () => {
             )}
           </DialogContent>
           <DialogActions sx={{ bgcolor: theme.colors.card }}>
-            <Button onClick={handleCloseModal} sx={{ color: theme.colors.text }}>
+            <Button onClick={() => setOpenModal(false)} sx={{ color: theme.colors.text }}>
               Cerrar
             </Button>
           </DialogActions>
