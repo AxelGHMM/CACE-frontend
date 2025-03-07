@@ -12,18 +12,13 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
+  Paper,Dialog, DialogTitle, DialogContent, DialogActions, IconButton
 } from "@mui/material";
 import api from "../../utils/api";
-import { Delete } from "@mui/icons-material";
 import * as XLSX from "xlsx";
 import DashELayout from "../Layout/DashELayout";
 import useAdminAuth from "../../hooks/useAdminAuth";
+import { Delete } from "@mui/icons-material";
 import theme from "../../theme";
 
 const StudentsPage: React.FC = () => {
@@ -40,29 +35,7 @@ const StudentsPage: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<number | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any[]>([]);
-  const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
-  const [openModal, setOpenModal] = useState(false);
 
-  
-  const fetchProfessorAssignments = async (professorId: number) => {
-    setSelectedProfessor(professorId);
-    try {
-      const response = await api.get(`/assignments/user/${professorId}`);
-      setProfessorAssignments(response.data);
-    } catch (error) {
-      console.error("Error al obtener asignaciones del profesor:", error);
-    }
-  };
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
-
-    try {
-      await api.delete(`/assignments/${id}`);
-      if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
-    } catch (error) {
-      console.error("Error al eliminar asignación:", error);
-    }
-  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -139,24 +112,50 @@ const StudentsPage: React.FC = () => {
       alert("Error al subir el archivo.");
     }
   };
+  const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
+const [openModal, setOpenModal] = useState(false);
+
+const fetchProfessorAssignments = async (professorId: number) => {
+  setSelectedProfessor(professorId);
+  try {
+    const response = await api.get(`/assignments/user/${professorId}`);
+    setProfessorAssignments(response.data);
+  } catch (error) {
+    console.error("Error al obtener asignaciones del profesor:", error);
+  }
+};
+
+const handleDelete = async (id: number) => {
+  if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
+
+  try {
+    await api.delete(`/assignments/${id}`);
+    if (selectedProfessor) fetchProfessorAssignments(selectedProfessor);
+  } catch (error) {
+    console.error("Error al eliminar asignación:", error);
+  }
+};
+
 
   return (
     <DashELayout>
+      
       <Box sx={{ p: 4, bgcolor: theme.colors.background, color: theme.colors.text, minHeight: "100vh" }}>
         <Typography variant="h4" gutterBottom fontWeight="bold" color={theme.colors.primary}>
           Gestión de Profesores y Estudiantes
         </Typography>
- {/* Botón para abrir modal de manejo de asignaciones */}
- <Button
-          variant="contained"
-          sx={{ mt: 3, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
-          onClick={() => setOpenModal(true)}
-        >
-          Manejo de Asignaciones</Button>
+
         {/* Asignar Profesor a Grupo y Materia */}
         <Typography variant="h6" sx={{ mt: 3 }} color={theme.colors.primary}>
           Asignar Profesor a Grupo y Materia
         </Typography>
+        <Button
+          variant="contained"
+          sx={{ mt: 3, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
+          onClick={() => setOpenModal(true)}
+        >
+          Manejo de Asignaciones
+        </Button>
 
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel sx={{ color: theme.colors.text }}>Profesor</InputLabel>
@@ -197,34 +196,7 @@ const StudentsPage: React.FC = () => {
         <Button variant="contained" sx={{ mt: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }} onClick={handleAssign}>
           Asignar Materia y Grupo
         </Button>
- {/* Modal para manejo de asignaciones */}
- <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="md">
-          <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
-            Manejo de Asignaciones
-          </DialogTitle>
-          <DialogContent sx={{ bgcolor: theme.colors.background }}>
-            <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel sx={{ color: theme.colors.text }}>Seleccionar Profesor</InputLabel>
-              <Select
-                value={selectedProfessor ?? ""}
-                onChange={(e) => fetchProfessorAssignments(Number(e.target.value))}
-                sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
-              >
-                {professors.map((professor) => (
-                  <MenuItem key={professor.id} value={professor.id}>
-                    {professor.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
 
-            {selectedProfessor && (
-              <Table sx={{ mt: 3, bgcolor: theme.colors.card }}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: theme.colors.text }}>Grupo</TableCell>
-                    <TableCell sx={{ color: theme.colors.text }}>Materia</TableCell>
-                    <TableCell sx={{ color: theme.colors.text }}>Acciones</TableCell>
         {/* Subir Lista de Alumnos */}
         <Typography variant="h6" sx={{ mt: 4 }} color={theme.colors.primary}>
           Subir Lista de Alumnos
@@ -281,6 +253,58 @@ const StudentsPage: React.FC = () => {
         <Button variant="contained" sx={{ mt: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }} onClick={handleUpload} disabled={!file}>
           Subir Archivo
         </Button>
+        <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="md">
+  <DialogTitle sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}>
+    Manejo de Asignaciones
+  </DialogTitle>
+  <DialogContent sx={{ bgcolor: theme.colors.background }}>
+    <FormControl fullWidth sx={{ mt: 2 }}>
+      <InputLabel sx={{ color: theme.colors.text }}>Seleccionar Profesor</InputLabel>
+      <Select
+        value={selectedProfessor ?? ""}
+        onChange={(e) => fetchProfessorAssignments(Number(e.target.value))}
+        sx={{ bgcolor: theme.colors.card, color: theme.colors.text }}
+      >
+        {professors.map((professor) => (
+          <MenuItem key={professor.id} value={professor.id}>
+            {professor.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+
+    {selectedProfessor && (
+      <Table sx={{ mt: 3, bgcolor: theme.colors.card }}>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ color: theme.colors.text }}>Grupo</TableCell>
+            <TableCell sx={{ color: theme.colors.text }}>Materia</TableCell>
+            <TableCell sx={{ color: theme.colors.text }}>Acciones</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {professorAssignments.map((assignment) => (
+            <TableRow key={assignment.id}>
+              <TableCell sx={{ color: theme.colors.text }}>{assignment.group_name}</TableCell>
+              <TableCell sx={{ color: theme.colors.text }}>{assignment.subject_name}</TableCell>
+              <TableCell>
+                <IconButton onClick={() => handleDelete(assignment.id)} sx={{ color: theme.colors.error }}>
+                  <Delete />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    )}
+  </DialogContent>
+  <DialogActions sx={{ bgcolor: theme.colors.card }}>
+    <Button onClick={() => setOpenModal(false)} sx={{ color: theme.colors.text }}>
+      Cerrar
+    </Button>
+  </DialogActions>
+</Dialog>
+
       </Box>
     </DashELayout>
   );
