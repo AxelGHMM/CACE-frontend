@@ -3,6 +3,8 @@ import {
   Button,
   Typography,
   Box,
+  Snackbar,
+  Alert,
   MenuItem,
   Select,
   InputLabel,
@@ -50,7 +52,17 @@ const StudentsPage: React.FC = () => {
   const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
   const [selectedProfessorForModal, setSelectedProfessorForModal] = useState<number | null>(null);
   
-  
+  // Estado para alertas Snackbar
+const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+  open: false,
+  message: "",
+  severity: "success",
+});
+
+const handleCloseSnackbar = () => {
+  setSnackbar({ ...snackbar, open: false });
+};
+
   const handleUpload = async () => {
     if (!file) {
       alert("Por favor, selecciona un archivo.");
@@ -103,33 +115,43 @@ const StudentsPage: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("¿Seguro que quieres eliminar esta asignación?")) return;
-
+  
     try {
       await api.delete(`/assignments/${id}`);
       if (selectedProfessorForModal) fetchProfessorAssignments(selectedProfessorForModal);
+      setSnackbar({ open: true, message: "Asignación eliminada con éxito.", severity: "success" });
     } catch (error) {
       console.error("Error al eliminar asignación:", error);
+      setSnackbar({ open: true, message: "Error al eliminar la asignación.", severity: "error" });
     }
   };
+  
 
   const handleAssign = async () => {
     if (!selectedProfessorForAssignment || !selectedGroupForAssignment || !selectedSubject) {
-      alert("Por favor, selecciona profesor, grupo y materia.");
+      setSnackbar({ open: true, message: "Por favor, selecciona profesor, grupo y materia.", severity: "error" });
       return;
     }
-
+  
     try {
       await api.post("/assignments", {
         user_id: selectedProfessorForAssignment,
         group_id: selectedGroupForAssignment,
         subject_id: selectedSubject,
       });
-      alert("Asignación realizada con éxito.");
+  
+      setSnackbar({ open: true, message: "Asignación realizada con éxito.", severity: "success" });
+  
+      // Limpiar los campos después de la asignación
+      setSelectedProfessorForAssignment(null);
+      setSelectedGroupForAssignment(null);
+      setSelectedSubject(null);
     } catch (error) {
       console.error("Error al asignar:", error);
-      alert("Error al realizar la asignación.");
+      setSnackbar({ open: true, message: "Error al realizar la asignación.", severity: "error" });
     }
   };
+  
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -290,6 +312,13 @@ const StudentsPage: React.FC = () => {
             )}
           </DialogContent>
         </Dialog>
+        {/* Snackbar para alertas */}
+<Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
+  <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+    {snackbar.message}
+  </Alert>
+</Snackbar>
+
       </Box>
     </DashELayout>
   );
