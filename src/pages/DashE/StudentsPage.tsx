@@ -49,7 +49,44 @@ const StudentsPage: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [professorAssignments, setProfessorAssignments] = useState<any[]>([]);
   const [selectedProfessorForModal, setSelectedProfessorForModal] = useState<number | null>(null);
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
 
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const data = new Uint8Array(event.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        setPreviewData(jsonData);
+      };
+      reader.readAsArrayBuffer(e.target.files[0]);
+    }
+  };
+  const handleUpload = async () => {
+    if (!file) {
+      alert("Por favor, selecciona un archivo.");
+      return;
+    }
+
+    if (!selectedGroupForUpload) {
+      alert("Por favor, selecciona un grupo antes de subir el archivo.");
+      return;
+    }
+
+    try {
+      await api.post("/upload", { data: previewData, groupId: selectedGroupForUpload });
+      alert("Archivo subido con éxito.");
+      setFile(null);
+      setPreviewData([]);
+    } catch (error) {
+      console.error("Error al subir el archivo:", error);
+      alert("Error al subir el archivo.");
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -177,7 +214,62 @@ const StudentsPage: React.FC = () => {
         <Button variant="contained" sx={{ mt: 2, bgcolor: theme.colors.primary }} onClick={handleAssign}>
           Asignar Materia y Grupo
         </Button>
+  {/* Subir Lista de Alumnos */}
+  <Typography variant="h6" sx={{ mt: 4 }} color={theme.colors.primary}>
+          Subir Lista de Alumnos
+        </Typography>
 
+        <FormControl fullWidth sx={{ mt: 2 }}>
+          <InputLabel sx={{ color: theme.colors.text }}>Grupo para Subida</InputLabel>
+          <Select
+            value={selectedGroupForUpload ?? ""}
+            onChange={(e) => setSelectedGroupForUpload(Number(e.target.value))}
+            sx={{
+              bgcolor: theme.colors.card,
+              color: theme.colors.text,
+            }}
+          >
+            {groups.map((group) => (
+              <MenuItem key={group.id} value={group.id}>
+                {group.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Box sx={{ mt: 2 }}>
+          <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} style={{ color: theme.colors.text }} />
+        </Box>
+
+        {previewData.length > 0 && (
+          <Box component={Paper} sx={{ mt: 4, p: 2, maxHeight: 300, overflowY: "auto", bgcolor: theme.colors.card }}>
+            <Typography variant="h6" color={theme.colors.primary}>
+              Vista Previa de la Lista
+            </Typography>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ color: theme.colors.text }}>Matrícula</TableCell>
+                  <TableCell sx={{ color: theme.colors.text }}>Nombre</TableCell>
+                  <TableCell sx={{ color: theme.colors.text }}>Email</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {previewData.map((student, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={{ color: theme.colors.text }}>{student.matricula}</TableCell>
+                    <TableCell sx={{ color: theme.colors.text }}>{student.name}</TableCell>
+                    <TableCell sx={{ color: theme.colors.text }}>{student.email || "N/A"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+        )}
+
+        <Button variant="contained" sx={{ mt: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }} onClick={handleUpload} disabled={!file}>
+          Subir Archivo
+        </Button>
         {/* Modal de Asignaciones */}
         <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="md">
           <DialogTitle>Manejo de Asignaciones</DialogTitle>
