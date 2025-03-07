@@ -125,6 +125,11 @@ const handleCloseSnackbar = () => {
       setSnackbar({ open: true, message: "Error al eliminar la asignación.", severity: "error" });
     }
   };
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedProfessorForModal(null); // Limpiar el profesor seleccionado
+    setProfessorAssignments([]); // Limpiar las asignaciones
+  };
   
 
   const handleAssign = async () => {
@@ -278,8 +283,8 @@ const handleCloseSnackbar = () => {
           Subir Archivo
         </Button>
         {/* Modal de Asignaciones */}
-        <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="md">
-          <DialogTitle>Manejo de Asignaciones</DialogTitle>
+        <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
+        <DialogTitle>Manejo de Asignaciones</DialogTitle>
           <DialogContent>
             <FormControl fullWidth sx={{ mt: 2 }}>
               <InputLabel>Seleccionar Profesor</InputLabel>
