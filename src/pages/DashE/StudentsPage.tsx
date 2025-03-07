@@ -44,23 +44,23 @@ const StudentsPage: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [professorsResponse, groupsResponse, subjectsResponse] = await Promise.all([
+          api.get("/users/role/professor"),
+          api.get("/groups"),
+          api.get("/subjects"),
+        ]);
+        setProfessors(professorsResponse.data);
+        setGroups(groupsResponse.data);
+        setSubjects(subjectsResponse.data);
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+      }
+    };
+
     fetchData();
   }, []);
-
-  const fetchData = async () => {
-    try {
-      const [professorsResponse, groupsResponse, subjectsResponse] = await Promise.all([
-        api.get("/users/role/professor"),
-        api.get("/groups"),
-        api.get("/subjects"),
-      ]);
-      setProfessors(professorsResponse.data);
-      setGroups(groupsResponse.data);
-      setSubjects(subjectsResponse.data);
-    } catch (error) {
-      console.error("Error al obtener datos:", error);
-    }
-  };
 
   const fetchProfessorAssignments = async (professorId: number) => {
     setSelectedProfessor(professorId);
@@ -69,6 +69,23 @@ const StudentsPage: React.FC = () => {
       setProfessorAssignments(response.data);
     } catch (error) {
       console.error("Error al obtener asignaciones del profesor:", error);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const data = new Uint8Array(event.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        setPreviewData(jsonData);
+      };
+      reader.readAsArrayBuffer(e.target.files[0]);
     }
   };
 
@@ -88,23 +105,6 @@ const StudentsPage: React.FC = () => {
     } catch (error) {
       console.error("Error al asignar:", error);
       alert("Error al realizar la asignación.");
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const data = new Uint8Array(event.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-        setPreviewData(jsonData);
-      };
-      reader.readAsArrayBuffer(e.target.files[0]);
     }
   };
 
@@ -148,7 +148,7 @@ const StudentsPage: React.FC = () => {
           Gestión de Profesores y Estudiantes
         </Typography>
 
-        {/* Botón para abrir el modal de manejo de asignaciones */}
+        {/* Botón para abrir modal de manejo de asignaciones */}
         <Button
           variant="contained"
           sx={{ mt: 3, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
