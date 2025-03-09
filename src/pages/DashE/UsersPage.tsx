@@ -23,6 +23,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import Swal from "sweetalert2";
 import { Edit, Delete } from "@mui/icons-material";
 import { SelectChangeEvent } from "@mui/material/Select";
 import api from "../../utils/api";
@@ -132,21 +133,34 @@ const UsersPage = () => {
   };
   
 
+
+
   const handleDelete = async (id: string) => {
-    if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+  
+    if (result.isConfirmed) {
       try {
         const token = sessionStorage.getItem("token");
         await api.delete(`/users/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchUsers();
-        setSnackbar({ open: true, message: "Usuario eliminado correctamente", severity: "success" });
+        Swal.fire("Eliminado", "El usuario ha sido eliminado correctamente", "success");
       } catch (error) {
-        setSnackbar({ open: true, message: "Error al eliminar usuario", severity: "error" });
-        console.error("Error deleting user", error);
+        Swal.fire("Error", "No se pudo eliminar el usuario", "error");
       }
     }
   };
+  
   
 
   return (
