@@ -8,6 +8,8 @@ import {
   TextField,
   Select,
   MenuItem,
+  Alert,
+  Snackbar,
   FormControl,
   InputLabel,
   Table,
@@ -54,7 +56,12 @@ const UsersPage = () => {
     role: "",
     password: "",
   });
-
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
@@ -101,22 +108,29 @@ const UsersPage = () => {
     try {
       const token = sessionStorage.getItem("token");
       const { id, password, ...data } = formData;
-
+  
       if (editMode) {
         await api.put(`/users/${id}`, data, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        setSnackbar({ open: true, message: "Usuario actualizado correctamente", severity: "success" });
       } else {
         await api.post("/users/register", formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        setSnackbar({ open: true, message: "Usuario creado correctamente", severity: "success" });
       }
       fetchUsers();
       handleClose();
     } catch (error) {
+      setSnackbar({ open: true, message: "Error al guardar usuario", severity: "error" });
       console.error("Error saving user", error);
     }
   };
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+  
 
   const handleDelete = async (id: string) => {
     if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
@@ -126,11 +140,14 @@ const UsersPage = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchUsers();
+        setSnackbar({ open: true, message: "Usuario eliminado correctamente", severity: "success" });
       } catch (error) {
+        setSnackbar({ open: true, message: "Error al eliminar usuario", severity: "error" });
         console.error("Error deleting user", error);
       }
     }
   };
+  
 
   return (
     <DashELayout>
@@ -237,6 +254,12 @@ const UsersPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleSnackbarClose}>
+  <Alert severity={snackbar.severity} onClose={handleSnackbarClose}>
+    {snackbar.message}
+  </Alert>
+</Snackbar>
+
     </DashELayout>
   );
 };
