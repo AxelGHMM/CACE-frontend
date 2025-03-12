@@ -4,7 +4,7 @@ const theme = {
     card: "#FFFFFF", // ⚪ Fondo blanco para tarjetas
     dashboardBackground: "#2ECC71", // 🟢 Verde más elegante
     primary: "#2ECC71", // ✅ Verde moderno y menos saturado
-    secondary: "#27AE60", 
+    secondary: "#20884c", 
     error: "#E74C3C", // 🔴 Rojo estándar para errores
     text: "#1E1E1E", // ⚫ Negro suave para mejor legibilidad
     sidebar: "#1E1E1E", // ⚫ Sidebar oscuro

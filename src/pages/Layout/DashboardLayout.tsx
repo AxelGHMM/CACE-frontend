@@ -1,14 +1,30 @@
 import React, { useState } from "react";
-import { Box, Typography, List, ListItem, ListItemButton, ListItemText, Drawer, IconButton, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Drawer,
+  IconButton,
+  Button,
+  BottomNavigation,
+  BottomNavigationAction,
+} from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import MenuIcon from "@mui/icons-material/Menu";
+import HomeIcon from "@mui/icons-material/Home";
+import GradeIcon from "@mui/icons-material/Grade";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import LogoutIcon from "@mui/icons-material/Logout";
 import theme from "../../theme";
 
 const sidebarItems = [
-  { label: "Inicio", route: "/dashboard" },
-  { label: "Calificaciones", route: "/dashboard/grades" },
-  { label: "Asistencia", route: "/dashboard/attendance" },
+  { label: "Inicio", route: "/dashboard", icon: <HomeIcon /> },
+  { label: "Calificaciones", route: "/dashboard/grades", icon: <GradeIcon /> },
+  { label: "Asistencia", route: "/dashboard/attendance", icon: <AssignmentIcon /> },
 ];
 
 const drawerWidth = 250;
@@ -18,6 +34,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const location = useLocation();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [navVisible, setNavVisible] = useState(true);
 
   const isActiveTab = (route: string) => location.pathname === route;
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
@@ -31,10 +48,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         height: "95%",
         display: "flex",
         flexDirection: "column",
-        color: "white",
+        color: theme.colors.card,
       }}
     >
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", fontSize: "1.2rem", color: "#F2F2F2" }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", fontSize: "1.2rem", color: theme.colors.card }}>
         Bienvenido, {user?.name || "Usuario"}
       </Typography>
 
@@ -53,7 +70,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <ListItemText
                 primary={label}
                 sx={{
-                  color: isActiveTab(route) ? "#131515" : "#FFFFFF",
+                  color: isActiveTab(route) ? theme.colors.text : "#FFFFFF",
                   fontSize: "1rem",
                   fontWeight: "bold",
                   textTransform: "uppercase",
@@ -67,8 +84,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
       <Button
         onClick={logout}
         sx={{
-          bgcolor: "#131515",
-          "&:hover": { bgcolor: "#2B2C28" },
+          bgcolor: theme.colors.sidebar,
+          "&:hover": { bgcolor: theme.colors.sidebarHover },
           borderRadius: "8px",
           color: "white",
           fontWeight: "bold",
@@ -86,18 +103,21 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <Box
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          position: "fixed",
-          height: "100vh",
-          zIndex: 1200,
-          display: { xs: "none", md: "block" },
-        }}
-      >
-        {drawerContent}
-      </Box>
+      {!mobileOpen && (
+        <Box
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            position: "fixed",
+            height: "100vh",
+            zIndex: 1200,
+            bgcolor: theme.colors.sidebar,
+            display: { xs: "none", md: "block" },
+          }}
+        >
+          {drawerContent}
+        </Box>
+      )}
 
       <Drawer
         variant="temporary"
@@ -106,7 +126,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": { width: drawerWidth, bgcolor: theme.colors.sidebar },
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            bgcolor: theme.colors.sidebar,
+          },
         }}
       >
         {drawerContent}
@@ -128,6 +151,60 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
         {children}
       </Box>
+
+      {navVisible && (
+        <BottomNavigation
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            width: "100%",
+            bgcolor: theme.colors.sidebar,
+            display: { xs: "flex", md: "none" },
+          }}
+          value={location.pathname}
+          onChange={(_, newValue) => {
+            if (newValue === "logout") {
+              logout();
+            } else {
+              navigate(newValue);
+            }
+          }}
+        >
+          {sidebarItems.map(({ label, route, icon }) => (
+            <BottomNavigationAction
+              key={label}
+              label={label}
+              value={route}
+              icon={icon}
+              sx={{
+                color: theme.colors.secondary,
+                "&.Mui-selected": {
+                  color: theme.colors.primary,
+                },
+                "&.Mui-selected .MuiBottomNavigationAction-label": {
+                  color: theme.colors.primary,
+                },
+              }}
+            />
+          ))}
+
+          {/* Botón de Cerrar Sesión en Bottom Navbar */}
+          <BottomNavigationAction
+            label="Cerrar Sesión"
+            value="logout"
+            icon={<LogoutIcon />}
+            sx={{
+              color: theme.colors.secondary,
+              "&.Mui-selected": {
+                color: theme.colors.primary,
+              },
+              "&.Mui-selected .MuiBottomNavigationAction-label": {
+                color: theme.colors.primary,
+              },
+            }}
+          />
+        </BottomNavigation>
+      )}
     </Box>
   );
 };

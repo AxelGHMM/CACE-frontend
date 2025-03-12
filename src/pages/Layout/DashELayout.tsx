@@ -1,15 +1,31 @@
 import React, { useState } from "react";
-import { Box, Typography, List, ListItem, ListItemButton, ListItemText, Drawer, IconButton, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Drawer,
+  IconButton,
+  Button,
+  BottomNavigation,
+  BottomNavigationAction,
+} from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import MenuIcon from "@mui/icons-material/Menu";
-import theme from "../../theme"; // ✅ Importamos el nuevo tema
+import HomeIcon from "@mui/icons-material/Home";
+import PeopleIcon from "@mui/icons-material/People";
+import ClassIcon from "@mui/icons-material/Class";
+import LogoutIcon from "@mui/icons-material/Logout";
+import theme from "../../theme";
 
 const adminSidebarItems = [
-  { label: "Inicio", route: "/dashE" },
-  { label: "Usuarios", route: "/dashE/users" },
-  { label: "Estudiantes", route: "/dashE/students" },
-  { label: "Materias y Grupos", route: "/dashE/subjects-groups" },
+  { label: "Inicio", route: "/dashE", icon: <HomeIcon /> },
+  { label: "Usuarios", route: "/dashE/users", icon: <PeopleIcon /> },
+  { label: "Estudiantes", route: "/dashE/students", icon: <PeopleIcon /> },
+  { label: "Academicos", route: "/dashE/subjects-groups", icon: <ClassIcon /> },
 ];
 
 const drawerWidth = 250;
@@ -19,6 +35,7 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [navVisible, setNavVisible] = useState(true);
 
   if (!user || user.role !== "admin") {
     navigate("/");
@@ -37,10 +54,10 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         height: "95%",
         display: "flex",
         flexDirection: "column",
-        color: "white",
+        color: theme.colors.card,
       }}
     >
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", fontSize: "1.2rem", color: "#F2F2F2" }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", fontSize: "1.2rem", color: theme.colors.card }}>
         Admin: {user?.name || "Usuario"}
       </Typography>
 
@@ -56,14 +73,14 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 padding: "10px",
               }}
             >
-              <ListItemText 
-                primary={label} 
-                sx={{ 
-                  color: isActiveTab(route) ? "#131515" : "#FFFFFF",
-                  fontSize: "1rem", 
+              <ListItemText
+                primary={label}
+                sx={{
+                  color: isActiveTab(route) ? theme.colors.text : "#FFFFFF",
+                  fontSize: "1rem",
                   fontWeight: "bold",
-                  textTransform: "uppercase"
-                }} 
+                  textTransform: "uppercase",
+                }}
               />
             </ListItemButton>
           </ListItem>
@@ -73,8 +90,8 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <Button
         onClick={logout}
         sx={{
-          bgcolor: "#131515",
-          "&:hover": { bgcolor: "#2B2C28" },
+          bgcolor: theme.colors.sidebar,
+          "&:hover": { bgcolor: theme.colors.sidebarHover },
           borderRadius: "8px",
           color: "white",
           fontWeight: "bold",
@@ -92,7 +109,6 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {/* Sidebar fijo solo en escritorio */}
       {!mobileOpen && (
         <Box
           sx={{
@@ -102,21 +118,20 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             height: "100vh",
             zIndex: 1200,
             bgcolor: theme.colors.sidebar,
-            display: { xs: "none", md: "block" }, // 🔹 Solo en escritorio
+            display: { xs: "none", md: "block" },
           }}
         >
           {drawerContent}
         </Box>
       )}
 
-      {/* Sidebar deslizable en móviles */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: "block", md: "none" }, // 🔹 Solo en móviles
+          display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             bgcolor: theme.colors.sidebar,
@@ -126,21 +141,15 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         {drawerContent}
       </Drawer>
 
-      {/* Contenido Principal */}
       <Box sx={{ flexGrow: 1, p: 3, ml: { xs: 0, md: `${drawerWidth}px` }, bgcolor: theme.colors.background }}>
-        {/* Botón de menú en móviles */}
         <IconButton
-          onClick={() => setMobileOpen(!mobileOpen)}
+          onClick={handleDrawerToggle}
           sx={{
             display: { xs: "block", md: "none" },
-            position: "fixed",
+            position: "absolute",
             top: 10,
             left: 10,
-            zIndex: 1300,
-            bgcolor: theme.colors.primary,
             color: "white",
-            p: 1,
-            borderRadius: "8px",
           }}
         >
           <MenuIcon />
@@ -148,6 +157,60 @@ const DashELayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         {children}
       </Box>
+
+      {navVisible && (
+        <BottomNavigation
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            width: "100%",
+            bgcolor: theme.colors.sidebar,
+            display: { xs: "flex", md: "none" },
+          }}
+          value={location.pathname}
+          onChange={(_, newValue) => {
+            if (newValue === "logout") {
+              logout();
+            } else {
+              navigate(newValue);
+            }
+          }}
+        >
+          {adminSidebarItems.map(({ label, route, icon }) => (
+            <BottomNavigationAction
+              key={label}
+              label={label}
+              value={route}
+              icon={icon}
+              sx={{
+                color: theme.colors.secondary,
+                "&.Mui-selected": {
+                  color: theme.colors.primary,
+                },
+                "&.Mui-selected .MuiBottomNavigationAction-label": {
+                  color: theme.colors.primary,
+                },
+              }}
+            />
+          ))}
+
+          {/* Botón de Cerrar Sesión en Bottom Navbar */}
+          <BottomNavigationAction
+            label="Cerrar Sesión"
+            value="logout"
+            icon={<LogoutIcon />}
+            sx={{
+              color: theme.colors.secondary,
+              "&.Mui-selected": {
+                color: theme.colors.primary,
+              },
+              "&.Mui-selected .MuiBottomNavigationAction-label": {
+                color: theme.colors.primary,
+              },
+            }}
+          />
+        </BottomNavigation>
+      )}
     </Box>
   );
 };
