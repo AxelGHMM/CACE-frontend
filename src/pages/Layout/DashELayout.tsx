@@ -16,6 +16,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
+import GroupIcon from "@mui/icons-material/Group";
 import PeopleIcon from "@mui/icons-material/People";
 import ClassIcon from "@mui/icons-material/Class";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -24,7 +25,7 @@ import theme from "../../theme";
 const adminSidebarItems = [
   { label: "Inicio", route: "/dashE", icon: <HomeIcon /> },
   { label: "Usuarios", route: "/dashE/users", icon: <PeopleIcon /> },
-  { label: "Estudiantes", route: "/dashE/students", icon: <PeopleIcon /> },
+  { label: "Estudiantes", route: "/dashE/students", icon: <GroupIcon /> },
   { label: "Academicos", route: "/dashE/subjects-groups", icon: <ClassIcon /> },
 ];
 
