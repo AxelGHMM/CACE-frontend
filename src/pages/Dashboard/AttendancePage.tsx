@@ -224,8 +224,28 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
           <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
         </Snackbar>
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-  <Box sx={{ p: 4, bgcolor: "white", width: 400, mx: "auto", mt: 10, borderRadius: 2 }}>
-    <Typography variant="h6">Buscar Asistencias</Typography>
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: { xs: "90%", sm: 600 },
+      bgcolor: theme.colors.card,
+      borderRadius: 2,
+      boxShadow: 24,
+      p: 4,
+      maxHeight: "80vh",
+      overflowY: "auto",
+    }}
+  >
+    <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Typography variant="h6">Buscar Asistencias</Typography>
+      <IconButton onClick={() => setModalOpen(false)}>
+        <CloseIcon />
+      </IconButton>
+    </Box>
+
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
         label="Selecciona una fecha"
@@ -234,7 +254,12 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
         sx={{ mt: 2, width: "100%" }}
       />
     </LocalizationProvider>
-    <Button variant="contained" onClick={handleSearchAttendance} sx={{ mt: 2 }}>
+
+    <Button
+      variant="contained"
+      onClick={handleSearchAttendance}
+      sx={{ mt: 2, bgcolor: theme.colors.primary }}
+    >
       Buscar
     </Button>
 
@@ -244,30 +269,33 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
         {Object.entries(searchedData).map(([hour, records]) => (
           <Box key={hour} sx={{ mt: 2 }}>
             <Typography variant="subtitle1">Hora: {hour}</Typography>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Nombre</TableCell>
-                  <TableCell>Materia</TableCell>
-                  <TableCell>Estado</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {records.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell>{record.student_name}</TableCell>
-                    <TableCell>{record.subject_name}</TableCell>
-                    <TableCell>{record.status}</TableCell>
+            <Box sx={{ maxHeight: 300, overflowY: "auto", mt: 1 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nombre</TableCell>
+                    <TableCell>Materia</TableCell>
+                    <TableCell>Estado</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {records.map((record) => (
+                    <TableRow key={record.id}>
+                      <TableCell>{record.student_name}</TableCell>
+                      <TableCell>{record.subject_name}</TableCell>
+                      <TableCell>{record.status}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
           </Box>
         ))}
       </Box>
     )}
   </Box>
 </Modal>
+
 
       </Box>
     </DashboardLayout>
