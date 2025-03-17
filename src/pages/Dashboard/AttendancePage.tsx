@@ -55,8 +55,8 @@ const AttendancePage: React.FC = () => {
     severity: "success",
   });
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [searchDate, setSearchDate] = useState(dayjs());
-  const [searchedData, setSearchedData] = useState<Attendance[]>([]);
+const [searchDate, setSearchDate] = useState(dayjs());
+const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }>({});
 
   useEffect(() => {
     const fetchAssignments = async () => {
@@ -93,7 +93,19 @@ const AttendancePage: React.FC = () => {
 
     fetchAttendance();
   }, [selectedGroup, selectedSubject]);
-
+  
+  const handleSearchAttendance = async () => {
+    try {
+      const response = await axios.get(`/attendances/search`, {
+        params: { date: searchDate.format("YYYY-MM-DD") }
+      });
+      setSearchedData(response.data);
+    } catch (error) {
+      console.error("Error searching attendance:", error);
+      setSearchedData({});
+    }
+  };
+  
   const handleStatusChange = (studentId: number, newStatus: Attendance["status"]) => {
     setAttendanceData(attendanceData.map(att =>
       att.student_id === studentId ? { ...att, status: newStatus } : att
@@ -195,6 +207,9 @@ const AttendancePage: React.FC = () => {
             </Table>
           )}
         </Box>
+        <Button variant="contained" onClick={() => setModalOpen(true)} sx={{ mt: 3, bgcolor: theme.colors.secondary }}>
+  Consultar Asistencias
+</Button>
 
         <Button variant="contained" onClick={handleSendAttendance} sx={{ mt: 3, bgcolor: theme.colors.primary }}>
           Enviar Asistencia
@@ -203,6 +218,52 @@ const AttendancePage: React.FC = () => {
         <Snackbar open={snackbar.open} autoHideDuration={2000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
           <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
         </Snackbar>
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+  <Box sx={{ p: 4, bgcolor: "white", width: 400, mx: "auto", mt: 10, borderRadius: 2 }}>
+    <Typography variant="h6">Buscar Asistencias</Typography>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DatePicker
+        label="Selecciona una fecha"
+        value={searchDate}
+        onChange={(newValue) => newValue && setSearchDate(newValue)}
+        sx={{ mt: 2, width: "100%" }}
+      />
+    </LocalizationProvider>
+    <Button variant="contained" onClick={handleSearchAttendance} sx={{ mt: 2 }}>
+      Buscar
+    </Button>
+
+    {Object.keys(searchedData).length > 0 && (
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="h6">Resultados</Typography>
+        {Object.entries(searchedData).map(([hour, records]) => (
+          <Box key={hour} sx={{ mt: 2 }}>
+            <Typography variant="subtitle1">Hora: {hour}</Typography>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nombre</TableCell>
+                  <TableCell>Materia</TableCell>
+                  <TableCell>Estado</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {records.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell>{record.student_name}</TableCell>
+                    <TableCell>{record.subject_name}</TableCell>
+                    <TableCell>{record.status}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+        ))}
+      </Box>
+    )}
+  </Box>
+</Modal>
+
       </Box>
     </DashboardLayout>
   );
