@@ -20,7 +20,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tool
 const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [attendanceData, setAttendanceData] = useState<{ group: string; subject: string; count: number }[]>([]);
-  const [gradesData, setGradesData] = useState<number[]>([]);
+  const [gradesData, setGradesData] = useState<{ partial: string; count: number; percentage: string }[]>([]);
   const [totalAttendance, setTotalAttendance] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
   const [attendanceAverage, setAttendanceAverage] = useState("0%");
@@ -32,7 +32,7 @@ const HomePage: React.FC = () => {
         console.log("Datos recibidos:", response.data);
         
         setAttendanceData(response.data.attendanceData || []);
-        setGradesData(response.data.gradesData || [0, 0, 0]);
+        setGradesData(response.data.gradesData || []);
         setTotalAttendance(response.data.totalAttendance || 0);
         setTotalStudents(response.data.totalStudents || 0);
         setAttendanceAverage(response.data.attendanceAverage || "0%");
@@ -59,10 +59,10 @@ const HomePage: React.FC = () => {
   };
 
   const pieData = {
-    labels: ["1° Grado", "2° Grado", "3° Grado"],
+    labels: gradesData.map((item) => item.partial), // Parcial 1, Parcial 2, Parcial 3
     datasets: [
       {
-        data: gradesData,
+        data: gradesData.map((item) => parseFloat(item.percentage)), // Convertir porcentaje a número
         backgroundColor: [theme.colors.primary, theme.colors.secondary, theme.colors.sidebar],
       },
     ],
@@ -120,10 +120,10 @@ const HomePage: React.FC = () => {
             <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, height: "100%" }}>
               <CardContent>
                 <Typography variant="h6" color={theme.colors.primary}>
-                  Asistencias por Grados
+                  Distribución de Calificaciones por Parcial
                 </Typography>
                 <Box sx={{ width: "100%", height: 300 }}>
-                  <Pie data={pieData} options={{ maintainAspectRatio: false }} />
+                  <Pie data={pieData} options={{ maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: (tooltipItem: any) => `${tooltipItem.raw.toFixed(2)}%` } } } }} />
                 </Box>
               </CardContent>
             </Card>
