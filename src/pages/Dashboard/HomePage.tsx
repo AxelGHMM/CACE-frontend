@@ -18,9 +18,8 @@ import theme from "../../theme";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 const HomePage: React.FC = () => {
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [attendanceData, setAttendanceData] = useState<number[]>([]);
+  const [attendanceData, setAttendanceData] = useState<{ group: string; subject: string; count: number }[]>([]);
   const [gradesData, setGradesData] = useState<number[]>([]);
   const [totalAttendance, setTotalAttendance] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
@@ -30,8 +29,9 @@ const HomePage: React.FC = () => {
     const fetchHomepage = async () => {
       try {
         const response = await api.get("/users/homepage/stats");
-        setUser(response.data.user);
-        setAttendanceData(response.data.attendanceData || [0, 0, 0, 0, 0]);
+        console.log("Datos recibidos:", response.data);
+        
+        setAttendanceData(response.data.attendanceData || []);
         setGradesData(response.data.gradesData || [0, 0, 0]);
         setTotalAttendance(response.data.totalAttendance || 0);
         setTotalStudents(response.data.totalStudents || 0);
@@ -46,11 +46,11 @@ const HomePage: React.FC = () => {
   }, []);
 
   const barData = {
-    labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo"],
+    labels: attendanceData.map((item) => `${item.group} - ${item.subject}`), // Grupo + Materia en etiquetas
     datasets: [
       {
-        label: "Asistencias",
-        data: attendanceData,
+        label: "Asistencias por Grupo y Materia",
+        data: attendanceData.map((item) => item.count),
         backgroundColor: theme.colors.primary,
         borderColor: theme.colors.text,
         borderWidth: 1,
@@ -108,7 +108,7 @@ const HomePage: React.FC = () => {
             <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, height: "100%" }}>
               <CardContent>
                 <Typography variant="h6" color={theme.colors.primary}>
-                  Asistencias de los últimos meses
+                  Asistencias por Grupo y Materia
                 </Typography>
                 <Box sx={{ width: "100%", height: 300 }}>
                   <Bar data={barData} options={{ maintainAspectRatio: false }} />
