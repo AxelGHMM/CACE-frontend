@@ -117,9 +117,11 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
     ));
   };
   const formatTime = (timestamp: string) => {
-    return dayjs(timestamp).format("HH:mm");
+    // Extrae solo la parte de hora y minutos
+    const cleanTime = timestamp.split(".")[0]; // "04:41:50" de "04:41:50.392137"
+    return dayjs(cleanTime, "HH:mm:ss").format("HH:mm");
   };
-  
+
   
   const handleSendAttendance = async () => {
     if (!selectedGroup || !selectedSubject) {
@@ -288,7 +290,7 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
       <Box sx={{ mt: 3 }}>
         <Typography variant="h6">Resultados</Typography>
       
-{Object.entries(searchedData).map(([hour, records]) => (
+        {Object.entries(searchedData).map(([hour, records]) => (
   <Box key={hour} sx={{ mt: 2 }}>
     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, borderBottom: '2px solid', pb: 1 }}>
       Hora: {formatTime(hour)}
