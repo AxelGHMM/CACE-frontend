@@ -119,27 +119,44 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
 
   const handleSendAttendance = async () => {
     if (!selectedGroup || !selectedSubject) {
-      setSnackbar({ open: true, message: "Selecciona un grupo y una materia antes de enviar la asistencia", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "Selecciona un grupo y una materia antes de enviar la asistencia",
+        severity: "error",
+      });
       return;
     }
-
+  
     try {
-      await axios.post(`/attendances/submit`, {
-        group_id: selectedGroup,
-        subject_id: selectedSubject,
-        date: new Date().toISOString().split("T")[0],
+      const payload = {
+        group_id: Number(selectedGroup), // Convertir a número
+        subject_id: Number(selectedSubject), // Convertir a número
+        date: new Date().toISOString().split("T")[0], // YYYY-MM-DD
         attendances: attendanceData.map(att => ({
-          student_id: att.student_id,
-          status: att.status,
+          student_id: Number(att.student_id), // Convertir a número
+          status: att.status.toLowerCase(), // Asegurar que es cadena en minúsculas
         })),
+      };
+  
+      console.log("Enviando asistencia:", payload); // Verificar los datos antes de enviarlos
+  
+      await axios.post(`/attendances/submit`, payload);
+  
+      setSnackbar({
+        open: true,
+        message: "Asistencia enviada correctamente",
+        severity: "success",
       });
-
-      setSnackbar({ open: true, message: "Asistencia enviada correctamente", severity: "success" });
     } catch (error) {
-      setSnackbar({ open: true, message: "No se pudo enviar la asistencia", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "No se pudo enviar la asistencia",
+        severity: "error",
+      });
       console.error("Error al enviar asistencia:", error);
     }
   };
+  
 
   return (
     <DashboardLayout>
