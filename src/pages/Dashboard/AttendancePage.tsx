@@ -100,15 +100,16 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
   
   const handleSearchAttendance = async () => {
     try {
-      const response = await axios.get(`/attendances/date`, {
-        params: { date: searchDate.format("YYYY-MM-DD") }
-      });
+      const formattedDate = searchDate.format("YYYY-MM-DD"); // Formatear la fecha correctamente
+      const response = await axios.get(`/attendances/date/${formattedDate}`); // Construir la URL con la fecha
+  
       setSearchedData(response.data);
     } catch (error) {
       console.error("Error searching attendance:", error);
       setSearchedData({});
     }
   };
+  
   
   const handleStatusChange = (studentId: number, newStatus: Attendance["status"]) => {
     setAttendanceData(attendanceData.map(att =>
