@@ -116,7 +116,11 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
       att.student_id === studentId ? { ...att, status: newStatus } : att
     ));
   };
-
+  const formatTime = (timestamp: Date) => {
+    return dayjs(timestamp).format("HH:mm");
+  };
+  
+  
   const handleSendAttendance = async () => {
     if (!selectedGroup || !selectedSubject) {
       setSnackbar({
@@ -283,31 +287,35 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
     {Object.keys(searchedData).length > 0 && (
       <Box sx={{ mt: 3 }}>
         <Typography variant="h6">Resultados</Typography>
-        {Object.entries(searchedData).map(([hour, records]) => (
-          <Box key={hour} sx={{ mt: 2 }}>
-            <Typography variant="subtitle1">Hora: {hour}</Typography>
-            <Box sx={{ maxHeight: 300, overflowY: "auto", mt: 1 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Nombre</TableCell>
-                    <TableCell>Materia</TableCell>
-                    <TableCell>Estado</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {records.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell>{record.student_name}</TableCell>
-                      <TableCell>{record.subject_name}</TableCell>
-                      <TableCell>{record.status}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        ))}
+      
+{Object.entries(searchedData).map(([hour, records]) => (
+  <Box key={hour} sx={{ mt: 2 }}>
+    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mt: 2, borderBottom: '2px solid', pb: 1 }}>
+      Hora: {formatTime(hour)}
+    </Typography>
+    <Box sx={{ maxHeight: 300, overflowY: "auto", mt: 1 }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell><b>Nombre</b></TableCell>
+            <TableCell><b>Materia</b></TableCell>
+            <TableCell><b>Estado</b></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {records.map((record) => (
+            <TableRow key={record.id}>
+              <TableCell>{record.student_name}</TableCell>
+              <TableCell>{record.subject_name}</TableCell>
+              <TableCell>{record.status}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Box>
+  </Box>
+))}
+
       </Box>
     )}
   </Box>
