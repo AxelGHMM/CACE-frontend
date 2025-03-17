@@ -116,7 +116,7 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
       att.student_id === studentId ? { ...att, status: newStatus } : att
     ));
   };
-  const formatTime = (timestamp: Date) => {
+  const formatTime = (timestamp: string) => {
     return dayjs(timestamp).format("HH:mm");
   };
   
