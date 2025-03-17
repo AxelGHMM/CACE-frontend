@@ -36,11 +36,15 @@ interface Assignment {
 }
 
 interface Attendance {
+  id: number; // Agregado
   student_id: number;
   matricula: string;
   name: string;
   status: "presente" | "ausente" | "retardo";
+  student_name: string; // Agregado
+  subject_name: string; // Agregado
 }
+
 
 const AttendancePage: React.FC = () => {
   const { user } = useAuth();
@@ -96,7 +100,7 @@ const [searchedData, setSearchedData] = useState<{ [key: string]: Attendance[] }
   
   const handleSearchAttendance = async () => {
     try {
-      const response = await axios.get(`/attendances/search`, {
+      const response = await axios.get(`/attendances/date`, {
         params: { date: searchDate.format("YYYY-MM-DD") }
       });
       setSearchedData(response.data);
