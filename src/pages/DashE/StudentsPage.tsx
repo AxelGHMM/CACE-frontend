@@ -359,105 +359,107 @@ const StudentsPage: React.FC = () => {
         <Dialog open={openStudentsModal} onClose={() => { setOpenStudentsModal(false); setSelectedStudent(null); }} fullWidth maxWidth="lg">
           <DialogTitle>Listas de Alumnos por Grupo</DialogTitle>
           <DialogContent dividers>
-            {Object.keys(studentsGrouped).length === 0 ? (
-              <Typography>No se encontraron alumnos.</Typography>
-            ) : (
-              Object.entries(studentsGrouped).map(([group, students]) => (
-                <Box key={group} sx={{ mb: 4 }}>
-                  <Typography variant="h6" sx={{ mt: 2 }}>
-                    {group} {`(${students.length} alumno${students.length > 1 ? "s" : ""})`}
-                  </Typography>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ color: theme.colors.text }}>Matrícula</TableCell>
-                        <TableCell sx={{ color: theme.colors.text }}>Nombre</TableCell>
-                        <TableCell sx={{ color: theme.colors.text }}>Email</TableCell>
-                        <TableCell sx={{ color: theme.colors.text }}>Grupo</TableCell>
-                        <TableCell sx={{ color: theme.colors.text }}>Acciones</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {students.map((student) => (
-                        <TableRow key={student.matricula}>
-                          <TableCell sx={{ color: theme.colors.text }}>{student.matricula}</TableCell>
-                          <TableCell sx={{ color: theme.colors.text }}>
-                            {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                              <TextField
-                                fullWidth
-                                value={selectedStudent.name}
-                                onChange={(e) =>
-                                  setSelectedStudent({ ...selectedStudent, name: e.target.value })
-                                }
-                              />
-                            ) : (
-                              student.name
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ color: theme.colors.text }}>
-                            {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                              <TextField
-                                fullWidth
-                                value={selectedStudent.email}
-                                onChange={(e) =>
-                                  setSelectedStudent({ ...selectedStudent, email: e.target.value })
-                                }
-                              />
-                            ) : (
-                              student.email || "N/A"
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ color: theme.colors.text }}>
-                            {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                              <FormControl fullWidth>
-                                <Select
-                                  value={selectedStudent.group_id}
-                                  onChange={(e) =>
-                                    setSelectedStudent({
-                                      ...selectedStudent,
-                                      group_id: Number(e.target.value),
-                                    })
-                                  }
-                                >
-                                  {groups.map((groupOption) => (
-                                    <MenuItem key={groupOption.id} value={groupOption.id}>
-                                      {groupOption.name}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              </FormControl>
-                            ) : (
-                              getGroupName(student.group_id)
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ color: theme.colors.text }}>
-                            {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                              <>
-                                <Button onClick={handleSaveEdit} variant="contained" sx={{ mr: 1, bgcolor: theme.colors.primary }}>
-                                  Guardar
-                                </Button>
-                                <Button onClick={() => setSelectedStudent(null)} variant="outlined">
-                                  Cancelar
-                                </Button>
-                              </>
-                            ) : (
-                              <>
-                                <IconButton onClick={() => setSelectedStudent(student)}>
-                                  <Edit />
-                                </IconButton>
-                                <IconButton onClick={() => handleDeleteStudent(student.matricula)}>
-                                  <Delete />
-                                </IconButton>
-                              </>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Box>
-              ))
-            )}
+          {Object.keys(studentsGrouped)
+  .sort((a, b) => a.localeCompare(b))
+  .map((group) => {
+    const students = studentsGrouped[group];
+    return (
+      <Box key={group} sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          {group} ({students.length} alumno{students.length > 1 ? "s" : ""})
+        </Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ color: theme.colors.text }}>Matrícula</TableCell>
+              <TableCell sx={{ color: theme.colors.text }}>Nombre</TableCell>
+              <TableCell sx={{ color: theme.colors.text }}>Email</TableCell>
+              <TableCell sx={{ color: theme.colors.text }}>Grupo</TableCell>
+              <TableCell sx={{ color: theme.colors.text }}>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {students.map((student) => (
+              <TableRow key={student.matricula}>
+                <TableCell sx={{ color: theme.colors.text }}>{student.matricula}</TableCell>
+                <TableCell sx={{ color: theme.colors.text }}>
+                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
+                    <TextField
+                      fullWidth
+                      value={selectedStudent.name}
+                      onChange={(e) =>
+                        setSelectedStudent({ ...selectedStudent, name: e.target.value })
+                      }
+                    />
+                  ) : (
+                    student.name
+                  )}
+                </TableCell>
+                <TableCell sx={{ color: theme.colors.text }}>
+                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
+                    <TextField
+                      fullWidth
+                      value={selectedStudent.email}
+                      onChange={(e) =>
+                        setSelectedStudent({ ...selectedStudent, email: e.target.value })
+                      }
+                    />
+                  ) : (
+                    student.email || "N/A"
+                  )}
+                </TableCell>
+                <TableCell sx={{ color: theme.colors.text }}>
+                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
+                    <FormControl fullWidth>
+                      <Select
+                        value={selectedStudent.group_id}
+                        onChange={(e) =>
+                          setSelectedStudent({
+                            ...selectedStudent,
+                            group_id: Number(e.target.value),
+                          })
+                        }
+                      >
+                        {groups.map((groupOption) => (
+                          <MenuItem key={groupOption.id} value={groupOption.id}>
+                            {groupOption.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    getGroupName(student.group_id)
+                  )}
+                </TableCell>
+                <TableCell sx={{ color: theme.colors.text }}>
+                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
+                    <>
+                      <Button onClick={handleSaveEdit} variant="contained" sx={{ mr: 1, bgcolor: theme.colors.primary }}>
+                        Guardar
+                      </Button>
+                      <Button onClick={() => setSelectedStudent(null)} variant="outlined">
+                        Cancelar
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <IconButton onClick={() => setSelectedStudent(student)}>
+                        <Edit />
+                      </IconButton>
+                      <IconButton onClick={() => handleDeleteStudent(student.matricula)}>
+                        <Delete />
+                      </IconButton>
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+    );
+  })}
+
           </DialogContent>
           <DialogActions>
             <Button onClick={() => { setOpenStudentsModal(false); setSelectedStudent(null); }}>
