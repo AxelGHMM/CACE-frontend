@@ -38,6 +38,7 @@ const GradesPage: React.FC = () => {
     message: "",
     severity: "success",
   });
+  const [originalValues, setOriginalValues] = useState<Record<number, Record<string, any>>>({});
 
   useEffect(() => {
     const fetchAssignments = async () => {
@@ -182,14 +183,34 @@ const GradesPage: React.FC = () => {
     <TextField
       value={editedGrades[grade.id]?.[field] ?? grade[field]}
       onFocus={() => {
-        // Limpia el valor al hacer click/enfocar
+        // Al hacer foco, almacenamos el valor original si aún no se ha guardado
+        const currentValue = editedGrades[grade.id]?.[field] ?? grade[field];
+        setOriginalValues((prev) => ({
+          ...prev,
+          [grade.id]: {
+            ...prev[grade.id],
+            [field]: currentValue,
+          },
+        }));
+        // Limpiamos el input
         handleChange(grade.id, field, "");
+      }}
+      onBlur={() => {
+        // Si el usuario no ingresó nada, restauramos el valor original
+        const currentValue = editedGrades[grade.id]?.[field];
+        if (currentValue === "" || currentValue === null || currentValue === undefined) {
+          const original = originalValues[grade.id]?.[field];
+          if (original !== undefined) {
+            handleChange(grade.id, field, original);
+          }
+        }
       }}
       onChange={(e) => handleChange(grade.id, field, e.target.value)}
       sx={{ input: { color: theme.colors.text }, bgcolor: theme.colors.card }}
     />
   </TableCell>
 ))}
+
 
 
                   <TableCell>
