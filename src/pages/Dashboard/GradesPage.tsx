@@ -178,14 +178,25 @@ const GradesPage: React.FC = () => {
                   <TableCell sx={{ color: theme.colors.text }}>{grade.matricula}</TableCell>
                   <TableCell sx={{ color: theme.colors.text }}>{grade.name}</TableCell>
                   {["activity_1", "activity_2", "attendance", "project", "exam"].map((field) => (
-                    <TableCell key={field}>
-                      <TextField
-                        value={editedGrades[grade.id]?.[field] ?? grade[field]}
-                        onChange={(e) => handleChange(grade.id, field, e.target.value)}
-                        sx={{ input: { color: theme.colors.text }, bgcolor: theme.colors.card }}
-                      />
-                    </TableCell>
-                  ))}
+  <TableCell key={field}>
+    <TextField
+      value={editedGrades[grade.id]?.[field] ?? grade[field]}
+      onFocus={
+        field === "attendance"
+          ? () => {
+              const currentValue = editedGrades[grade.id]?.[field] ?? grade[field];
+              if (currentValue === "0.0" || currentValue === 0 || currentValue === "0") {
+                handleChange(grade.id, field, "");
+              }
+            }
+          : undefined
+      }
+      onChange={(e) => handleChange(grade.id, field, e.target.value)}
+      sx={{ input: { color: theme.colors.text }, bgcolor: theme.colors.card }}
+    />
+  </TableCell>
+))}
+
                   <TableCell>
                     <Button variant="contained" onClick={() => handleSave(grade.id)} sx={{ bgcolor: theme.colors.primary }}>
                       Guardar
