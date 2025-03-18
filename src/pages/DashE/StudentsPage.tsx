@@ -237,17 +237,7 @@ const StudentsPage: React.FC = () => {
           Manejo de Asignaciones
         </Button>
 
-        {/* Botón para abrir modal de Listas de Alumnos */}
-        <Button
-          variant="contained"
-          sx={{ mt: 3, ml: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
-          onClick={() => {
-            setOpenStudentsModal(true);
-            fetchStudentsGrouped();
-          }}
-        >
-          Consultar Listas de Alumnos
-        </Button>
+        
 
         {/* Asignación de Profesor a Materia y Grupo */}
         <Typography variant="h6" sx={{ mt: 3 }} color={theme.colors.primary}>
@@ -352,6 +342,17 @@ const StudentsPage: React.FC = () => {
           disabled={!file}
         >
           Subir Archivo
+        </Button>
+        {/* Botón para abrir modal de Listas de Alumnos */}
+        <Button
+          variant="contained"
+          sx={{ mt: 3, ml: 2, bgcolor: theme.colors.primary, "&:hover": { bgcolor: theme.colors.secondary } }}
+          onClick={() => {
+            setOpenStudentsModal(true);
+            fetchStudentsGrouped();
+          }}
+        >
+          Consultar Listas de Alumnos
         </Button>
 
         {/* Modal único para consultar, editar y eliminar estudiantes */}
