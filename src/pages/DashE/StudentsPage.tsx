@@ -379,82 +379,90 @@ const StudentsPage: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {students.map((student) => (
-              <TableRow key={student.matricula}>
-                <TableCell sx={{ color: theme.colors.text }}>{student.matricula}</TableCell>
-                <TableCell sx={{ color: theme.colors.text }}>
-                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                    <TextField
-                      fullWidth
-                      value={selectedStudent.name}
-                      onChange={(e) =>
-                        setSelectedStudent({ ...selectedStudent, name: e.target.value })
-                      }
-                    />
-                  ) : (
-                    student.name
-                  )}
-                </TableCell>
-                <TableCell sx={{ color: theme.colors.text }}>
-                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                    <TextField
-                      fullWidth
-                      value={selectedStudent.email}
-                      onChange={(e) =>
-                        setSelectedStudent({ ...selectedStudent, email: e.target.value })
-                      }
-                    />
-                  ) : (
-                    student.email || "N/A"
-                  )}
-                </TableCell>
-                <TableCell sx={{ color: theme.colors.text }}>
-                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                    <FormControl fullWidth>
-                      <Select
-                        value={selectedStudent.group_id}
-                        onChange={(e) =>
-                          setSelectedStudent({
-                            ...selectedStudent,
-                            group_id: Number(e.target.value),
-                          })
-                        }
-                      >
-                        {groups.map((groupOption) => (
-                          <MenuItem key={groupOption.id} value={groupOption.id}>
-                            {groupOption.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  ) : (
-                    getGroupName(student.group_id)
-                  )}
-                </TableCell>
-                <TableCell sx={{ color: theme.colors.text }}>
-                  {selectedStudent && selectedStudent.matricula === student.matricula ? (
-                    <>
-                      <Button onClick={handleSaveEdit} variant="contained" sx={{ mr: 1, bgcolor: theme.colors.primary }}>
-                        Guardar
-                      </Button>
-                      <Button onClick={() => setSelectedStudent(null)} variant="outlined">
-                        Cancelar
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <IconButton onClick={() => setSelectedStudent(student)}>
-                        <Edit />
-                      </IconButton>
-                      <IconButton onClick={() => handleDeleteStudent(student.matricula)}>
-                        <Delete />
-                      </IconButton>
-                    </>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+  {students
+    .slice()
+    .sort((a, b) => a.matricula.localeCompare(b.matricula))
+    .map((student) => (
+      <TableRow key={student.matricula}>
+        <TableCell sx={{ color: theme.colors.text }}>{student.matricula}</TableCell>
+        <TableCell sx={{ color: theme.colors.text }}>
+          {selectedStudent && selectedStudent.matricula === student.matricula ? (
+            <TextField
+              fullWidth
+              value={selectedStudent.name}
+              onChange={(e) =>
+                setSelectedStudent({ ...selectedStudent, name: e.target.value })
+              }
+            />
+          ) : (
+            student.name
+          )}
+        </TableCell>
+        <TableCell sx={{ color: theme.colors.text }}>
+          {selectedStudent && selectedStudent.matricula === student.matricula ? (
+            <TextField
+              fullWidth
+              value={selectedStudent.email}
+              onChange={(e) =>
+                setSelectedStudent({ ...selectedStudent, email: e.target.value })
+              }
+            />
+          ) : (
+            student.email || "N/A"
+          )}
+        </TableCell>
+        <TableCell sx={{ color: theme.colors.text }}>
+          {selectedStudent && selectedStudent.matricula === student.matricula ? (
+            <FormControl fullWidth>
+              <Select
+                value={selectedStudent.group_id}
+                onChange={(e) =>
+                  setSelectedStudent({
+                    ...selectedStudent,
+                    group_id: Number(e.target.value),
+                  })
+                }
+              >
+                {groups.map((groupOption) => (
+                  <MenuItem key={groupOption.id} value={groupOption.id}>
+                    {groupOption.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            getGroupName(student.group_id)
+          )}
+        </TableCell>
+        <TableCell sx={{ color: theme.colors.text }}>
+          {selectedStudent && selectedStudent.matricula === student.matricula ? (
+            <>
+              <Button
+                onClick={handleSaveEdit}
+                variant="contained"
+                sx={{ mr: 1, bgcolor: theme.colors.primary }}
+              >
+                Guardar
+              </Button>
+              <Button onClick={() => setSelectedStudent(null)} variant="outlined">
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <>
+              <IconButton onClick={() => setSelectedStudent(student)}>
+                <Edit />
+              </IconButton>
+              <IconButton onClick={() => handleDeleteStudent(student.matricula)}>
+                <Delete />
+              </IconButton>
+            </>
+          )}
+        </TableCell>
+      </TableRow>
+    ))}
+</TableBody>
+
         </Table>
       </Box>
     );
