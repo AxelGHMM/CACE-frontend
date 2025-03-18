@@ -181,21 +181,16 @@ const GradesPage: React.FC = () => {
   <TableCell key={field}>
     <TextField
       value={editedGrades[grade.id]?.[field] ?? grade[field]}
-      onFocus={
-        field === "attendance"
-          ? () => {
-              const currentValue = editedGrades[grade.id]?.[field] ?? grade[field];
-              if (currentValue === "0.0" || currentValue === 0 || currentValue === "0") {
-                handleChange(grade.id, field, "");
-              }
-            }
-          : undefined
-      }
+      onFocus={() => {
+        // Limpia el valor al hacer click/enfocar
+        handleChange(grade.id, field, "");
+      }}
       onChange={(e) => handleChange(grade.id, field, e.target.value)}
       sx={{ input: { color: theme.colors.text }, bgcolor: theme.colors.card }}
     />
   </TableCell>
 ))}
+
 
                   <TableCell>
                     <Button variant="contained" onClick={() => handleSave(grade.id)} sx={{ bgcolor: theme.colors.primary }}>
