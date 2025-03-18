@@ -57,16 +57,27 @@ const HomePage: React.FC = () => {
       },
     ],
   };
-
   const pieData = {
-    labels: gradesData.map((item) => item.partial), // Parcial 1, Parcial 2, Parcial 3
+    labels: gradesData.map((item) => item.partial), // "Parcial 1", "Parcial 2", "Parcial 3"
     datasets: [
       {
-        data: gradesData.map((item) => parseFloat(item.percentage)), // Convertir porcentaje a número
+        data: gradesData.map((item) => item.count), // Usamos el promedio de calificación
         backgroundColor: [theme.colors.primary, theme.colors.secondary, theme.colors.sidebar],
       },
     ],
   };
+  
+  const pieOptions = {
+    maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem: any) => `Promedio: ${tooltipItem.raw.toFixed(2)}`, // Mostramos el promedio real
+        },
+      },
+    },
+  };
+  
 
   if (loading) {
     return (
@@ -117,17 +128,18 @@ const HomePage: React.FC = () => {
             </Card>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, height: "100%" }}>
-              <CardContent>
-                <Typography variant="h6" color={theme.colors.primary}>
-                  Distribución de Calificaciones por Parcial
-                </Typography>
-                <Box sx={{ width: "100%", height: 300 }}>
-                  <Pie data={pieData} options={{ maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: (tooltipItem: any) => `${tooltipItem.raw.toFixed(2)}%` } } } }} />
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+  <Card sx={{ bgcolor: theme.colors.card, color: theme.colors.text, height: "100%" }}>
+    <CardContent>
+      <Typography variant="h6" color={theme.colors.primary}>
+        Promedio de Calificaciones por Parcial
+      </Typography>
+      <Box sx={{ width: "100%", height: 300 }}>
+        <Pie data={pieData} options={pieOptions} />
+      </Box>
+    </CardContent>
+  </Card>
+</Grid>
+
         </Grid>
       </Box>
     </DashboardLayout>
