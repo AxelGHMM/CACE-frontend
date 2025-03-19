@@ -475,6 +475,51 @@ const StudentsPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog open={openModal} onClose={handleCloseModal} fullWidth maxWidth="md">
+  <DialogTitle>Manejo de Asignaciones</DialogTitle>
+  <DialogContent>
+    <FormControl fullWidth sx={{ mt: 2 }}>
+      <InputLabel>Seleccionar Profesor</InputLabel>
+      <Select
+        value={selectedProfessorForModal ?? ""}
+        onChange={(e) => fetchProfessorAssignments(Number(e.target.value))}
+      >
+        {professors.map((professor) => (
+          <MenuItem key={professor.id} value={professor.id}>
+            {professor.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+    {selectedProfessorForModal && (
+      <Table sx={{ mt: 3 }}>
+        <TableHead>
+          <TableRow>
+            <TableCell>Grupo</TableCell>
+            <TableCell>Materia</TableCell>
+            <TableCell>Acciones</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {professorAssignments.map((assignment) => (
+            <TableRow key={assignment.id}>
+              <TableCell>{assignment.group_name}</TableCell>
+              <TableCell>{assignment.subject_name}</TableCell>
+              <TableCell>
+                <IconButton onClick={() => handleDelete(assignment.id)}>
+                  <Delete />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleCloseModal}>Cerrar</Button>
+  </DialogActions>
+</Dialog>
 
         {/* Snackbar para alertas */}
         <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleCloseSnackbar}>
