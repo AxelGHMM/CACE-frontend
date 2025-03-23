@@ -15,20 +15,22 @@ import DashELayout from "../Layout/DashELayout";
 import api from "../../utils/api";
 import theme from "../../theme";
 
-const logFiles = ["app.log", "combined.log", "error.log", "health.log", "http.log"];
+const logFiles = ["app.log", "error.log", "http.log", "health.log"]; // Asegúrate de que estos archivos existan
 
 const LogsPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState("app.log");
   const [logContent, setLogContent] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // Estado para manejar errores
 
   const fetchLog = async (filename: string) => {
     try {
       setLoading(true);
+      setError(null); // Reiniciar el error antes de la nueva solicitud
       const res = await api.get(`users/logs/${filename}`);
       setLogContent(res.data.content);
     } catch (err) {
-      setLogContent(`⚠️ Error al obtener el log: ${(err as any).message}`);
+      setError(`⚠️ Error al obtener el log: ${(err as any).response?.data?.error || (err as any).message}`);
     } finally {
       setLoading(false);
     }
@@ -82,6 +84,10 @@ const LogsPage: React.FC = () => {
                 {loading ? (
                   <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 200 }}>
                     <CircularProgress color="secondary" />
+                  </Box>
+                ) : error ? (
+                  <Box sx={{ color: "red", fontWeight: "bold", textAlign: "center" }}>
+                    {error}
                   </Box>
                 ) : (
                   <Box
