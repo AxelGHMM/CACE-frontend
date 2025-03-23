@@ -29,7 +29,7 @@ const adminSidebarItems = [
   { label: "Usuarios", route: "/dashE/users", icon: <PeopleIcon /> },
   { label: "Estudiantes", route: "/dashE/students", icon: <GroupIcon /> },
   { label: "Academicos", route: "/dashE/subjects-groups", icon: <ClassIcon /> },
-  { label: "Logs", route: "/dashE/LogsPage", icon: <HistoryIcon /> },
+  { label: "Logs", route: "/dashE/logs", icon: <HistoryIcon /> },
 ];
 
 const drawerWidth = 250;
