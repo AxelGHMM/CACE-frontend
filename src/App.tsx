@@ -6,6 +6,7 @@ import GradesPage from "./pages/Dashboard/GradesPage";
 import AttendancePage from "./pages/Dashboard/AttendancePage";
 import UsersPage from "./pages/DashE/UsersPage";
 import StudentsPage from "./pages/DashE/StudentsPage";
+import LogsPage from "./pages/DashE/LogsPage";
 import AdminHome from "./pages/DashE/AdminHome";
 import SubjectGroup from "./pages/DashE/SubjectGroup";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -30,6 +31,7 @@ function App() {
             <Route path="/dashE" element={<AdminHome />} />
             <Route path="/dashE/users" element={<UsersPage />} />
             <Route path="/dashE/students" element={<StudentsPage />} />
+            <Route path="/dashE/logs" element={<LogsPage />} />
             <Route path="/dashE/subjects-groups" element={<SubjectGroup />} />
           </Route>
         </Routes>
