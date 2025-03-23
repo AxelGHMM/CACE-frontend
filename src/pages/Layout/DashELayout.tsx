@@ -20,6 +20,8 @@ import GroupIcon from "@mui/icons-material/Group";
 import PeopleIcon from "@mui/icons-material/People";
 import ClassIcon from "@mui/icons-material/Class";
 import LogoutIcon from "@mui/icons-material/Logout";
+import HistoryIcon from '@mui/icons-material/History';
+
 import theme from "../../theme";
 
 const adminSidebarItems = [
@@ -27,6 +29,7 @@ const adminSidebarItems = [
   { label: "Usuarios", route: "/dashE/users", icon: <PeopleIcon /> },
   { label: "Estudiantes", route: "/dashE/students", icon: <GroupIcon /> },
   { label: "Academicos", route: "/dashE/subjects-groups", icon: <ClassIcon /> },
+  { label: "Logs", route: "/dashE/LogsPage", icon: <HistoryIcon /> },
 ];
 
 const drawerWidth = 250;

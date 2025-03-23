@@ -25,7 +25,7 @@ const LogsPage: React.FC = () => {
   const fetchLog = async (filename: string) => {
     try {
       setLoading(true);
-      const res = await api.get(`/logs/${filename}`);
+      const res = await api.get(`users/logs/${filename}`);
       setLogContent(res.data.content);
     } catch (err) {
       setLogContent(`⚠️ Error al obtener el log: ${(err as any).message}`);
